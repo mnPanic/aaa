@@ -1,0 +1,216 @@
+\documentclass{report}
+
+% Matemática
+\usepackage{amsmath}    % símbolos matemáticos
+\usepackage{amsthm}     % teoremas
+\usepackage{amsfonts}   % \mathbb
+\usepackage{bm}         % bold math (https://ctan.org/pkg/bm)
+
+
+% Figuras
+\usepackage{tikz}                   % gráficos
+\usepackage{float}                  % [H]
+\usepackage{xcolor}                 % colores https://es.overleaf.com/learn/latex/Using_colours_in_LaTeX
+
+% Texto
+\usepackage[shortlabels]{enumitem}  % enumerate con letras
+
+
+\usetikzlibrary{arrows,positioning,automata,shadows,fit,shapes}
+
+% Teoremas, corolarios, etc.
+% https://www.overleaf.com/learn/latex/theorems_and_proofs
+\theoremstyle{definition} % Para que no salga en italicas
+
+\newtheorem{theorem}{Teorema}
+\newtheorem*{theorem*}{Teorema}
+
+\newtheorem{lemma}{Lema}
+\newtheorem*{lemma*}{Lema}
+
+\newtheorem{proposition}{Prop.}
+\newtheorem*{proposition*}{Prop.}
+
+\newtheorem{definition}{Def.}
+\newtheorem*{definition*}{Def}
+
+\author{Manuel Panichelli}
+\title{Notas de \\\textit{Algoritmos, Azar y Autómatas}}
+
+\begin{document}
+\maketitle
+
+\chapter{Introducción}
+
+\section{Azar}
+
+Azar es \textbf{imposibilidad de predecir}, \textbf{falta de patrones},
+imposibilidad de abreviar, comprimir.
+
+Vamos a categorizar el azar según diferentes modelos de cómputo
+
+\begin{itemize}
+    \item Autómatas finitos
+    \item Autómatas de pila
+    \item Máquinas de turing
+\end{itemize}
+
+\begin{definition}
+    Una secuencia es \textbf{azarosa} (para los autómatas de la clase $C$)
+    cuando, esencialmente, la única forma de describirla (mediante un autómata
+    de la clase $C$) es nombrando explícitamente cada uno de sus símbolos.
+\end{definition}
+
+Esto quiere decir que no tiene patrones (porque sino podríamos nombrar menos) y
+que no se puede comprimir. \textit{Esencialmente} porque se pueden hacer
+pequeñas conversiones. Por ejemplo, las cadenas de $\{a^n b^n \mid n \in
+\mathbb{N}\}$ son azarosas para AF pero no para AP (porque es un lenguaje libre
+de contexto pero no regular).
+
+Hay distintos \textit{grados de azar}:
+
+\begin{enumerate}
+    \item \textbf{Azar puro}: Impredecibilidad / incompresibilidad para
+    máquinas de turing
+    \item \textbf{Azar básico}: Impredicibilidad / incompresibilidad para
+    autómatas finitos.
+\end{enumerate}
+
+\begin{enumerate}
+    \item Una secuencia es \textbf{random} si, esencialmente, sus
+    \textit{segmentos iniciales} solo se pueden describir explícitamente por una
+    Turing Machine (no pueden ser comprimidos por una TM)
+    \item Una secuencia es \textbf{normal} si, esencialmente, sus segmentos
+    iniciales solo se pueden describir explicitamente por un autómata finito.
+\end{enumerate}
+
+Cosas que no copié
+
+\begin{enumerate}
+    \item Kolmogorov / program size complexity
+    \item Definicion de azar de Chaitin basado en kolmogorov
+    \item Martin Löf random
+\end{enumerate}
+
+\section{Numeros normales}
+
+\begin{definition*}
+    Una \textbf{base} es un entero $\geq 2$. Para un $x \in \mathbb{R}$ en el
+    intervalo unitario\footnote{El intervalo unitario es el intervalo cerrado
+    $[0, 1]$}, su \textbf{expansión} en base $b$ es una \textbf{secuencia} $a_1
+    a_2 a_3 \dots$ de enteros de ${0, 1, \dots, b-1}$ tales que
+
+    $$x = 0.a_1 a_2 a_3 \dots,$$
+
+    donde $x = \sum_{k \geq 1} \frac{a_k}{b_k}$ y $x$ no termina con una cola de
+    $b - 1$.
+\end{definition*}
+
+
+\begin{definition}[Números normales, Borel 1909]
+    Un número real $x$ es,
+    \begin{itemize}
+        \item \textbf{Simplemente normal a base $b$} si en la expansión de $x$
+        en base $b$, cada digito ocurre con una frecuencia de $1/b$ en el
+        límite.
+
+        \textit{(En el límite todos los símbolos tienen la misma frecuencia)}
+        \item \textbf{Normal a base $b$} si para cada entero positivo $k$, cada
+        bloque de $k$ digitos (arrancando de cualquier posición) ocurre en la
+        expansión de $x$ en base $b$ con una frecuencia en el límite de $1/b^k$
+        \item \textbf{Absolutamente normal} si es normal para todas las bases.
+    \end{itemize}
+\end{definition}
+
+Ejemplos:
+
+\begin{itemize}
+    \item $0.01 \ 002 \ 0003 \ 00004 \ 000005 \ 0000006 \ 00000007 \ 000000008 \dots$
+    no es simplemente normal a base $10$ (el 0 tiene más frecuencia que el
+    resto)
+    \item $0.0123456789 \ 0.0123456789 \ 0.0123456789 \ 0.0123456789 \dots$ es
+    simpelemente normal a base $10$, pero no es simplemente normal a base 100.
+
+    \textit{Pasar de base 10 a base 100 es tomar combinaciones de dos dígitos en base 10 de forma contigua}
+
+    \item El ternario de cantor no es simplemente normal a base 3 (las
+    expansiones no tienen el dígito 1)
+
+    \item Los numeros racionales no son normales a ninguna base
+    
+    Si agarro un número racional, por ej 3.14
+
+    $$3.14 \rightsquigarrow 3.140000000\dots$$
+    
+    en base 10 tiene un período que se repite
+
+    \item La constante de Liouville $\sum_{n \geq 1} 10^{-n!}$ no es normal a
+    base 10
+\end{itemize}
+
+\begin{theorem}[Borel 1909]
+    Casi todos los números reales son absolutamente normales.
+\end{theorem}
+
+Son las constantes matemáticas usuales como $\pi$, $e$ o $\sqrt{2}$
+absolutamente normales? O al menos simplemente normales a alguna base? Es una
+pregunta abierta.
+
+\begin{theorem}[Champernowne, 1933]
+
+    Todos los numeros naturales en base 10 concatenados es normal a base 10.
+
+    $$0.123456789101112131415161718192021\dots$$
+
+    \textit{No se sabe si es normal a bases que no son potencias de 10}
+    
+\end{theorem}
+
+\begin{theorem}[Cassels 1959; Schmidth 1961]
+    Casi todos los números del ternario de Cantor son normales a base 2.
+\end{theorem}
+
+\begin{theorem}[Bailey y Borwein 2012]
+    El número de Stoneham $\alpha_{2, 3} = \sum_{k \geq 1} \frac{1}{3^k
+    2^{3^k}}$ es normal a base 2 pero no simplemente normal a base 6.
+\end{theorem}
+
+\subsection{Normalidad y autómatas finitos}
+
+\begin{definition}
+    Una secuencia $x = a_1 a_2 a_3 \dots$ es \textbf{compresible} por un
+    trasductor finito $T$ si y solo si en la corrida en $T$ $q_0
+    \xrightarrow{a_1\mid v_1} q_1 \xrightarrow{a_2\mid v_2} q_2
+    \xrightarrow{a_3\mid v_3} q_3 \dots$ satisface que
+
+    $$\underset{n \to \infty}{\text{lim inf}}\ \frac{|v_1 v_2 \dots v_n|}{n} <
+    1.$$
+    
+    \textit{Recordar que los $a$ son símbolols y los $v$ cadenas, posiblemente vacías.}
+\end{definition}
+
+\begin{theorem}
+    Una secuencia es \textbf{normal} si y solo si es \textbf{incompresible por
+    todo one-to-one transducer}.
+\end{theorem}
+
+\begin{theorem*}[Becher, Casrton, Heiber 2013]
+    Los transductores finitos uno a uno no deterministicos con contadores no
+    pueden comprimir secuencias normales.
+\end{theorem*}
+
+\begin{theorem*}
+    
+\end{theorem*}
+    Los trasductores de pila no determinísticos pueden comprimir secuencias
+    normales.
+    
+    $$
+        0123456789\ \textcolor{blue}{9876543210}\
+        00\ 01\ 02\ 03 \dots 98\ 99\ \textcolor{blue}{99\ 98\ 97 \dots 03\ 02\ 01\ 00\ }
+        000\ 001\ 002 \dots
+    $$
+
+    \textit{Va pusheando y cuando detecta el cambio empieza a desapilar.
+    Parecido al APD que reconoce $w\#w^r$}
+\end{document}
