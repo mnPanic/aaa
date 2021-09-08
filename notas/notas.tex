@@ -15,6 +15,8 @@
 % Texto
 \usepackage[shortlabels]{enumitem}  % enumerate con letras
 
+% Referencias
+\usepackage[colorlinks=true]{hyperref}
 
 \usetikzlibrary{arrows,positioning,automata,shadows,fit,shapes}
 
@@ -111,7 +113,7 @@ Cosas que no copié
 \end{definition*}
 
 
-\begin{definition}[Números normales, Borel 1909]
+\begin{definition}[Números normales, Borel 1909]\label{def:normal-borel}
     Un número real $x$ es,
     \begin{itemize}
         \item \textbf{Simplemente normal a base $b$} si en la expansión de $x$
@@ -235,6 +237,12 @@ pregunta abierta.
     \item La cadena vacía es $\lambda$
 \end{itemize}
 
+\begin{definition*}[Ocurrencia en cadena]
+    Decimos que una palabra $u$ \textit{ocurre} en una cadena en una posición
+    $i$ si $w[i\dots i+|u|-1] = u$. (\textit{omitimos decir ambas posiciones
+    para las ocurrencias})
+\end{definition*}
+
 \begin{definition}
     El número de ocurrencias alineadas y no alineadas de una cadena es
 
@@ -313,7 +321,7 @@ La cantidad de ocurrencias de $100$ coinciden con las de $4$.
     longitud $|u|$, $1/b^{|u|}$ seria que cada uno tiene la misma frecuencia.}
 \end{definition}
 
-\begin{theorem}[Piatetski-Shapiro 1957]
+\begin{theorem}[Piatetski-Shapiro]\label{teo:piatetski-shapiro}
     Sea $x$ un número real, $b \geq 2$ un entero y $A = \{0, \dots, b - 1\}$.
     Las siguientes son equivalentes
     \begin{enumerate}
@@ -322,14 +330,14 @@ La cantidad de ocurrencias de $100$ coinciden con las de $4$.
         para todo $w \in A^\ell$
 
         $$
-            \underset{n \to \infty}{\text{lim sum}}
+            \underset{n \to \infty}{\text{lim sup }}
             \frac{|x[1\dots n]|_w}{n} < C \cdot b^{-\ell}.
         $$
         \item Existe una constante $C$ tal que para infinitas longitudes $\ell$ y
         para todo $w \in A^\ell$
 
         $$
-            \underset{n \to \infty}{\text{lim sum}}
+            \underset{n \to \infty}{\text{lim sup }}
             \frac{||x[1\dots n\ell]||_w}{n} < C \cdot b^{-\ell}.
         $$ 
     \end{enumerate}
@@ -340,7 +348,7 @@ Para el ejercicio hay que hacer la 3ra.
 \section{Tres secuencias normales}
 
 \begin{itemize}
-    \item Secuencias de Brujin infinitas
+    \item Secuencias de Bruijn infinitas
     \item A la Champernowne (binario)
     
     $$01\ \ 00\ 01\ 10\ 11\ \ 000\ 001\ 010\ 011\ 100\ 101\ 110\ 111\ \ 0000 \dots$$
@@ -349,42 +357,42 @@ Para el ejercicio hay que hacer la 3ra.
     es idéntica a toda la secuencia.
 \end{itemize}
 
-\section{De Brujin}
+\section{De Bruijn}
 
-\begin{definition}[De Brujin 1946]
-    Definiciones de De Brujin,
+\begin{definition}[De Bruijn 1946]
+    Definiciones de De Bruijn,
     \begin{itemize}
-        \item Un \textbf{collar de De Brujin} de orden $n$ sobre un alfabeto $A$
+        \item Un \textbf{collar de De Bruijn} de orden $n$ sobre un alfabeto $A$
         es una secuencia cíclica de longitud $|A|^n$ tal que cada palabra de
         longitud $n$ ocurre en ella exactamente una vez.
 
         Ejemplos: 01; 0011; 00011101 (el 100 está en la pos 8 por ej.).
 
-        \item Una \textbf{palabra de De Brujin} (no cíclica) de orden $n$ sobre
+        \item Una \textbf{palabra de De Bruijn} (no cíclica) de orden $n$ sobre
         el alfabeto $A$ es una palabra de longitud $|A|^n + n - 1$ (se le agrega
-        todo lo que uno podría hacer con un ciclo) tal que cada palabra de
+        todo lo que uno podría hacer con un ciclo, desde la última posición una palabra con longitud $n$ podría llegar hasta $n-1$ más al principio) tal que cada palabra de
         longitud $n$ ocurre en ella exactamente una vez.
 
         Ejemplos: 01; 00110; 0001110100.
 
-        \item Una \textbf{palabra infinita de De Brujin} $w = a_1 a_2 \dots$ en
+        \item Una \textbf{palabra infinita de De Bruijn} $w = a_1 a_2 \dots$ en
         un alfabeto de al menos tres símbolos es una palabra infinita tal que,
 
         $$\forall{n}.\ a_1\dots a_{|A|^n + n - 1}$$
 
-        es una palabra de De Brujin de orden $n$.
+        es una palabra de De Bruijn de orden $n$.
 
-        Ejemplo: 012, una palabra de De Brujin de orden 1, se puede extender a
+        Ejemplo: 012, una palabra de De Bruijn de orden 1, se puede extender a
         la siguiente de orden 2: 0122002110.
 
-        Si el alfabeto tiene dos símbolos, una palabra infinita de De Brujin $w
+        Si el alfabeto tiene dos símbolos, una palabra infinita de De Bruijn $w
         = a_1 a_2 \dots$ es aquella que para cada $n$ impar, $a_1\dots a_{|A|^n
-        + n - 1}$ es una palabra de De Brujin de orden $n$.
+        + n - 1}$ es una palabra de De Bruijn de orden $n$.
     \end{itemize}
 \end{definition}
 
 \begin{definition}
-    Un \textbf{grafo de De Brujin} $G_A(n)$ es un digrafo cuyos vértices son
+    Un \textbf{grafo de De Bruijn} $G_A(n)$ es un digrafo cuyos vértices son
     palabras de longitud $n$ sobre el alfabeto $A$ y sus ejes los pares $(au,
     ub)$ para alguna palabra $u$ de longitud $n - 1$ y posiblemente dos símbolos
     diferentes $a, b$.
@@ -392,7 +400,7 @@ Para el ejercicio hay que hacer la 3ra.
     \begin{figure}[H]
         \centering
         \includegraphics[scale=0.3]{img/2_de_brujin_01.png}
-        \caption{Ejemplo de grafo de De Brujin de orden 2 para $A = \{0, 1\}$}
+        \caption{Ejemplo de grafo de De Bruijn de orden 2 para $A = \{0, 1\}$}
     \end{figure}
     
     \begin{itemize}
@@ -410,7 +418,7 @@ Para el ejercicio hay que hacer la 3ra.
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.3]{img/2_de_brujin_ord_1234.png}
-    \caption{Grafos de De Brujin de ordenes 1, 2, 3 y 4 sobre $A = \{0, 1\}$}
+    \caption{Grafos de De Bruijn de ordenes 1, 2, 3 y 4 sobre $A = \{0, 1\}$}
 \end{figure}
 
 \begin{definition*}
@@ -420,35 +428,157 @@ Para el ejercicio hay que hacer la 3ra.
 
 
 \begin{proposition}
-    Toda secuencia de De Brujin de orden $n+1$ sobre un alfabeto de $|A|$
+    Toda secuencia de De Bruijn de orden $n+1$ sobre un alfabeto de $|A|$
     simbolos se puede construir como un ciclo Euleriano en $G_A(n)$.
 \end{proposition}
 
 \begin{proposition}[Becher, Heiber 2011]\label{prop:de-brujin-extend}
     Dado un alfabeto $A$ con al menos tres símbolos, toda secuencia de De
-    Brujin de orden $n$ se puede extender a una de orden $n + 1$
+    Bruijn de orden $n$ se puede extender a una de orden $n + 1$
 \end{proposition}
 \begin{proof}
     Dado un alfabeto $A$, suponiendo que $E$ es un ciclo Euleriano de $G_A(n)$.
     Como $G_A(n + 1)$ es el grafo de línea de $G_A(n)$, $E$ es un ciclo
     Hamiltoniano en $G_A(n+1)$.
 
-    \textit{Está la demo en las clases, no la terminé de ver.}
+    \textit{Todo ciclo euleriano va a ser hamiltoniano en el grafo de línea, 
+    porque los vertices son los ejes}
+    
+    \textit{\textcolor{blue}{Está la demo completa en las clases, no la terminé
+    de ver.}}
 
-    \textit{Todo ciclo euleriano va a ser hamiltoniano en el grafo de línea, porque los vertices son los ejes}
 \end{proof}
 
-Para computar una palabra infinita de De Brujin puedo para cada $n \geq 1$
-extender un ciclo Hamiltoniano en un grafo de De Brujin de orden $n$ a uno
+Para computar una palabra infinita de De Bruijn puedo para cada $n \geq 1$
+extender un ciclo Hamiltoniano en un grafo de De Bruijn de orden $n$ a uno
 Euleriano en el mismo grafo. Esto se hace en tiempo exponencial de $n$, y no se
 conoce ningun algoritmo eficiente.
 
 \begin{theorem}[Ugalde 2000]
-    Las palabras infinitas de De Brujin son normales.
+    Las palabras infinitas de De Bruijn son normales.
 
     Si el alfabeto $A$ tiene dos símbolos, se puede considerar el alfabeto $A'$
     de 4 símbolos que se obtiene con el morfismo que mapea bloques de dos
     simbolos en $A$ a un simbolo en $A'$ y probar normalidad ahí.
 \end{theorem}
+\begin{proof}[Dem.]
+    Intuitivamente, una secuencia es normal si cada bloque de dígitos ocurre con
+    la misma frencuencia en el límite que cada otro bloque de la misma longitud
+    (ver Def \nameref{def:normal-borel}). Para probarlo, el numero de ocurrencias en
+    una posición arbitraria está acotado por el numero de ocurrencias al final
+    del megabloque.
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale=0.3]{img/2_de_brujin_inf_normal_block.png}
+    \end{figure}
+
+    Quiero ver que las palabras infinitas de De Bruijn son normales. Sea $\ell$ una longitud cualquiera, $u \in A^\ell$ un bloque de esa longitud y $n > |A|^\ell + \ell - 1$ ($u$ pertenecerá a una palabra de De Bruijn de orden $\ell$, que tiene longitud $|A|^\ell + \ell - 1$).
+
+    $u$ ocurre en una palabra de De Bruijn de orden $n$ entre $|A|^{n - \ell}$
+    y $|A|^{n - \ell} + n - \ell$ veces
+    \begin{itemize}
+        \item Aparece al menos $|A|^{n - \ell}$ veces porque como en una palabra de De Bruijn de orden $n$ aparecen todas las cadenas de tamaño $n$ una vez, el bloque $u$ va a aparecer con $|A|^{n - \ell}$ terminaciones distintas.
+        
+        En otras palabras, hay exactamente $|A|^{n - \ell}$ palabras de longitud $n$ que tienen como primeros $\ell$ símbolos a $u$.
+
+        \begin{figure}[H]
+            \centering
+            \includegraphics[scale=0.3]{img/2_de-brujin-normal-inf.png}
+        \end{figure}
+
+        \item A lo sumo $|A|^{n - \ell} + n - \ell$ porque hay exactamente $n - \ell$ posiciones en una palabra de De Bruijn de orden $n$ en las cuales podría comenzar una palabra de longitud $\ell$. \textcolor{red}{no me termina de quedar claro}
+    \end{itemize}
+
+    Sea $x = a_1 a_2 \dots$ una palabra infinita de De Bruijn sobre A. Por definición, para cada $n$
+
+    $$a_1\dots a_{|A|^n + n - 1}$$
+
+    es una palabra de De Bruijn de orden $n$. Fijemos $N$ una posición en la palabra infinita que esté entre el final de la palabra de De Bruijn de orden $n$ y $n+1$,
+    
+    $$|A|^n + n - 1 \leq N < |A|^{n+1} + n.$$
+
+    Luego,
+
+    \begin{align*}
+        \frac{|a_1\dots a_N|_u}{N} &\leq
+        \frac{|a_1\dots a_{|A|^{n+1} + n}|_u}{|A|^n + n - 1} &\text{(Por la cota que define N)} \\
+        &\leq \frac{|A|^{n+1 - \ell} + n - 1}{|A|^n + n - 1}
+        & \text{(\#ap de u en De Bruijn de orden n + 1)}\\
+        &< 2 |A|^{-\ell + 1}. &\text{(cuentita)}
+    \end{align*}
+
+    Por lo tanto,
+
+    \[
+        \underset{N \to \infty}{\text{lim sup }} \frac{|a_1\dots a_N|_u}{N}
+        < 2 |A|^{-\ell + 1}.
+    \]
+
+    El Teorema \nameref{teo:piatetski-shapiro} nos dice que un número real $x$
+    es normal para una base $b$ si existe una constante $C$ tal que para
+    infinitas longitudes $\ell$ y para todo $w \in A^\ell$
+
+    $$
+        \underset{n \to \infty}{\text{lim sum}}
+        \frac{|x[1\dots n]|_w}{n} < C \cdot b^{-\ell}.
+    $$
+
+    Interpretado para cadenas, podemos decir que $b$ es el tamaño del alfabeto y
+    que la expansión hasta $n$ es un bloque de tamaño $n$. Por lo tanto, tomando
+    $b = |A|$ y $C = 2|A|$ se cumple y concluimos que $x$ (una palabra infinita
+    de De Bruijn) es normal.
+\end{proof}
+
+\section{Collares perfectos (\textit{Perfect Necklaces})}
+
+Consideremos todos los bloques de tamaño $n$, concatenados en orden
+lexicografico y vistos circularmente (como \textit{collares}). Cada bloque de
+tamaño $n$ ocurre exactamente $n$ veces en posiciones diferentes modulo $n$.
+
+Por ejemplo, para el alfabeto $\{0, 1\}$ y $n = 2$, los bloques concatenados en orden lexicográfico son $00\ 01\ 10\ 11$ y
+
+% Lo dejo acá solamente porque estaba quedando fachero.
+% \begin{align*}
+%     &\overset{1}{0}
+%     \overset{2}{0}\
+%     \overset{3}{0}
+%     \overset{4}{1}\
+%     \overset{5}{1}
+%     \overset{6}{0}\
+%     \overset{7}{1}
+%     \overset{8}{1} \\
+%     &00\ 01\ 10\ 11 \\
+%     &00\ 01\ 10\ 11 \\
+%     &00\ 01\ 10\ 11 \\
+%     &00\ 01\ 10\ 11 \\
+%     &00\ 01\ 10\ 11 \\
+%     &00\ 01\ 10\ 11 \\
+%     &00\ 01\ 10\ 11 \\
+% \end{align*}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.3]{img/2_perf-neckl-2.png}
+\end{figure}
+
+No toda permutación de los bloques de longitud $n$ tiene esta propiedad, por ejemplo
+
+\begin{itemize}
+    \item $\bm{00}\ 10\ 11\ 01$: El $00$ aparece solamente 1 vez.
+    \item $\bm{000}\ 101\ 001\ 010\ 011\ 100\ 110\ 111$: El $000$ aparece solo una vez.
+\end{itemize}
+
+\begin{definition}[Collar perfecto]
+    Un collar (cadena circular) sobre un alfabeto de $b$ símbolos se dice $\bm{(n, k)}$\textbf{-perfecto} si cada bloque de longitud $n$ ocurre $k$ veces, en posiciones diferentes modulo $k$, para cualquier convención de punto de partida.
+\end{definition}
+
+Observaciones:
+
+\begin{itemize}
+    \item Los collaras de De Bruijn son exactamente los collares $(n, 1)$-perfectos.
+    \item Los collares $(n, k)$-perfectos tienen longitud $k b^n$
+\end{itemize}
+
 
 \end{document}
