@@ -1,0 +1,462 @@
+\documentclass{article}
+
+% Matemática
+\usepackage{amsmath}    % símbolos matemáticos
+\usepackage{amsthm}     % teoremas
+\usepackage{amsfonts}   % \mathbb
+\usepackage{bm}         % bold math (https://ctan.org/pkg/bm)
+\usepackage{abraces}    % \aoverbrace http://ctan.org/pkg/abraces
+% https://tex.stackexchange.com/questions/132526/overbrace-and-underbrace-with-square-bracket
+
+\usepackage[makeroom]{cancel}   % \cancel
+
+% Figuras
+\usepackage{tikz}                   % gráficos
+\usepackage{float}                  % [H]
+\usepackage{xcolor}                 % colores https://es.overleaf.com/learn/latex/Using_colours_in_LaTeX
+
+% Texto
+\usepackage[shortlabels]{enumitem}  % enumerate con letras
+
+% Referencias
+\usepackage[colorlinks=true]{hyperref}
+
+\usepackage{mathtools}
+% Macros para símbolos
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+
+\newcommand{\BigO}{\mathcal{O}}
+
+% Teoremas, corolarios, etc.
+% https://www.overleaf.com/learn/latex/theorems_and_proofs
+\theoremstyle{definition} % Para que no salga en italicas
+
+\newtheorem{theorem}{Teorema}
+\newtheorem*{theorem*}{Teorema}
+
+\newtheorem{lemma}{Lema}
+\newtheorem*{lemma*}{Lema}
+
+\newtheorem{proposition}{Prop.}
+\newtheorem*{proposition*}{Prop}
+
+\newtheorem{definition}{Def.}
+\newtheorem*{definition*}{Def}
+
+\author{Manuel Panichelli}
+\title{Algoritmos, Azar y Autómatas\\Resolución Ejercicios 1 a 3}
+
+\begin{document}
+\maketitle
+
+\section*{Resultados previos}
+
+\begin{proposition}[La cota de Gasti]\label{prop:cota-gasti}
+    $\sum_{i = 1}^{n} b^i \leq b^{n+1}$
+\end{proposition}
+\begin{proof}[Dem.]
+    \[
+        \sum_{i = 1}^{n} b^i
+            \leq \sum_{i = 0}^{n} b^i
+            = \frac
+                {b^{n+1} - 1}
+                {\aunderbrace[l1r]{b - 1}_{\geq 1}}
+            \leq b^{n+1} - 1 < b^{n+1}
+    \]
+\end{proof}
+
+\begin{theorem}[Piatetski-Shapiro]\label{teo:piatetski-shapiro}
+    Sea $x$ un número real, $b \geq 2$ un entero y $A = \{0, \dots, b - 1\}$.
+    Las siguientes son equivalentes
+    \begin{enumerate}
+        \item $x$ es normal a base $b$
+        \item Existe una constante $C$ tal que para infinitas longitudes $\ell$ y
+        para todo $w \in A^\ell$
+
+        $$
+            \underset{n \to \infty}{\text{lim sup }}
+            \frac{|x[1\dots n]|_w}{n} < C \cdot b^{-\ell}.
+        $$
+        \item Existe una constante $C$ tal que para infinitas longitudes $\ell$ y
+        para todo $w \in A^\ell$
+
+        $$
+            \underset{n \to \infty}{\text{lim sup }}
+            \frac{||x[1\dots n\ell]||_w}{n} < C \cdot b^{-\ell}.
+        $$ 
+    \end{enumerate}
+\end{theorem}
+
+\section*{Ejercicio 1}
+
+Demostrar que el número cuya expansión decimal es
+
+\[
+    01234\dots9\ 01234\dots9\ \
+    00\ 01\ 02\ \dots\ 99\ 00\ 01\ 02\ \dots\ 99 \ \
+    000\ \dots\ 999\dots
+\]
+
+Es normal en base 10.
+
+\begin{proof}[Dem.]
+
+    Voy a llamar $C_i$ a cada concatenación de números de $i$ dígitos en base 10
+    en orden lexicográfico. Por lo tanto,
+
+    \begin{align*}
+        C_1 &= 0\ 1\ 2\ 3\ \dots\ 9\\
+        C_2 &= 00\ 01\ 02\ \dots\ 99 \\
+        C_3 &= 000\ 001\ 002\ \dots\ 999 \\
+        \vdots
+    \end{align*}
+
+    Y observo que como son progresiones aritméticas en orden lexicográfico,
+    vistas como collar son collares (n-n)-perfectos, en los cuales cada bloque
+    de longitud $n$ aparece exactamente $n$ veces.
+
+    Luego la secuencia que quiero demostrar que es normal se puede escribir como
+
+    $$x = C_1C_1\ C_2 C_2\ C_3 C_3\ \dots\ .$$
+
+    Yo voy a querer contar cantidad de apariciones, y se que en
+    \textit{collares} perfectos es exactamente $n$, pero esto son secuencias.
+    Para tomarlas como secuencias de todas formas,
+
+    \begin{itemize}
+        \item En el primer bloque $C_i$ de $C_iC_i$, puedo tomar los primeros $i
+        - 1$ del 2do $C_i$ para leer el primero como un collar.
+        \item En el segundo bloque, voy a poder tomar los primeros $i - 1$ del
+        bloque de siguiente orden $C_iC_iC_{i+1}$. Esto es porque al ser
+        progresiones aritméticas, en la $i+1$-ésima seguro los primeros $i - 1$
+        dígitos son iguales a los primeros $i - 1$ de la $C_i$, ya que están
+        ordenadas lexicográficamente.
+    \end{itemize}
+
+    Defino $S_k$ como la longitud del segmento inicial que contiene hasta la
+    aparición completa de $C_k C_k$. Se que $|C_k| = k \cdot b^k$ pues no es más
+    que la concatenación de todos los bloques posibles de longitud $k$. Luego,
+
+    \[S_k = \sum_{i=1}^n 2|C_i| = 2\sum_{i=1}^n 2i \cdot b^i \]
+
+    sean $b = |A| = 10$, $u \in A^\ell$ un bloque de longitud $\ell$. Tomo $n
+    \geq S_\ell$. Se que la cantidad de apariciones de $u$ en el bloque $C_nC_n$
+    y los $n-1$ siguientes correspondientes a los primeros $n-1$ del bloque
+    $C_{n+1}$ (para que el 2do bloque $C_n$ pueda ser tomado como collar)
+    son menores o iguales a
+
+    \[
+        2n\cdot b^{n-\ell} + n - \ell.
+    \]
+
+    Pues,
+
+    \begin{itemize}
+        \item Teniendo en cuenta la observación anterior, podemos tomarlos como
+        collar. Por lo tanto, sabemos que un collar $(n, n)$ aparecerá $n$ veces
+        y como tengo dos concatenados será $2n$.
+        \item $b^{n-\ell}$ es la cantidad de rellenos posibles para bloques de
+        tamaño $n$ que comiencen con $u$.
+        \item $n - \ell$ son las posiciones en las cuales podría aparecer un
+        bloque $u$ que no pueden ser el principio de un bloque de tamaño $n$,
+        porque se pasarían del tamaño de la secuencia.
+    \end{itemize}
+
+    Sea $N$ una posición cualquiera. Tomo $n$ tal que
+
+    \[
+        S_n \leq N < S_{n+1}.
+    \]
+
+    Para poder usar el Teorema de \nameref{teo:piatetski-shapiro}, voy a tener
+    que acotar el cociente $\frac{|x[1\dots N]|_u}{N}$. Noto que
+
+    \begin{align*}
+        |x[1\dots N]|_u
+            &\leq |x[1\dots S_{n+1}+n]|_u\\
+            &\leq \aunderbrace[l1r]{
+                |x[1\dots S_{\ell} - 1]|_u + 
+                \aoverbrace[L1R]{\ell - 1}
+                    ^{\hidewidth\text{entre bloques}\hidewidth}}_{A}
+                +|x[S_{\ell}\dots S_{n+1}+n]|_u\\
+            &\leq A + \sum_{i=\ell}^{n+1} |x[S_{i-1} \dots S_i+(i-1)]|_u + \aoverbrace[L1R]{\ell - 1}^{\hidewidth\text{entre bloques}\hidewidth} \\
+            &= A + \sum_{i=\ell}^{n+1} 2ib^{i - \ell} + i - \cancel{\ell} + \cancel{\ell} - 1 \\
+            &= A + b^{-\ell}\sum_{i=\ell}^{n+1} 2(n+1) b^{i} + 
+                \aunderbrace[l1r]{\sum_{i=\ell}^{n+1} i - 1}_{B}\\
+            &\leq A + B + 2(n+1) b^{-\ell} b^{n+2} & \text{(Por \ref{prop:cota-gasti})}
+    \end{align*}
+
+    Luego,
+    \begin{align*}
+        \limsup_{N \to \infty} \frac{|x[1\dots N]|_u}{N}
+            &\leq \limsup_{N \to \infty} \frac{A + B + 2(n+1) b^{-\ell} b^{n+2}}{S_n} \\
+            &= \limsup_{N \to \infty} \cancelto{0}{\frac{A}{S_n}} +
+                \cancelto{0}{\frac{B}{S_n}} +
+                \frac{2(n+1) b^{-\ell} b^{n+2}}{\sum_{i=1}^{n}2ib^i} \\
+            &\leq \limsup_{N \to \infty} \frac{2(n+1) b^{-\ell} b^{\cancel{n}+2}}{2n\cancel{b^n}} \\
+            &= \limsup_{N \to \infty} \frac{2n+2}{2n} b^{-\ell} b^{2} \\
+            &= \limsup_{N \to \infty} (1 + \cancelto{0}{\frac{1}{n}}) b^{-\ell} b^{2} \\
+            &= b^2 \cdot b^{-\ell} \\
+            &< \aunderbrace[l1r]{b^3}_{C} \cdot b^{-\ell}
+    \end{align*}
+
+    Por lo tanto, por el Teorema de \nameref{teo:piatetski-shapiro} con $C =
+    b^3$ la secuencia $x$ es normal a base 10.
+\end{proof}
+
+\section*{Ejercicio 2}
+
+Demostrar que la concatenación de secuencias de Bruijn de orden sucesivo es
+normal.
+
+\begin{proof}[Dem.]
+    Voy a llamar $C_k$ a cada secuencia de de Bruijn de orden $k$. Luego, puedo
+    expresar la cadena como,
+
+    \[
+        x = C_1 C_2 C_3 \dots\ .
+    \]
+
+    Teniendo en cuenta que la longitud de una secuencia de Bruijn de orden $k$
+    es $b^k + k - 1$, defino $S_k$ como la longitud del segmento inicial de $x$
+    que contiene hasta $C_k$ inclusive:
+
+    \[
+        S_k = \sum_{i=1}^{k} b^i + i - 1.
+    \]
+
+    Sea $\ell$ una longitud, $u \in A^\ell$ un bloque de esa longitud y tomo
+    algún $n > S_\ell$ (para que seguro esté la secuencia de Bruijn que contiene
+    a $u$). Como la cantidad de apariciones de $u$ en $C_\ell$ es exactamente
+    una, la cantidad de apariciones en $C_n$ es
+
+    \[
+        b^{n-\ell} + n - \ell,
+    \]
+
+    Ya que
+
+    \begin{itemize}
+        \item $b^{n-\ell}$ es la cantidad de formas posibles de
+        \textit{rellenar} palabras de longitud $n$ que arranquen con $u$.
+        \item $n - \ell$ contempla todas las palabras que no podrían comenzar
+        por $u$ porque se pasan del final. 
+    \end{itemize}
+
+    Luego, en la concatenación de todas las de Bruijn, puedo contar en cada una
+    y luego contemplar las $\ell - 1$ posiciones en las que podría aparecer
+    entre cada una.
+
+    Sea $N$ una posición cualquiera, y tomo $n$ tal que
+
+    $$S_{n} \leq N \leq S_{n+1}.$$
+
+    Quiero usar el Teorema de \nameref{teo:piatetski-shapiro}, por lo que voy a
+    tener que acotar de alguna forma el cociente $\frac{|x[1\dots N]|_u}{N}$.
+    Veamos el numerador,
+
+    \begin{align*}
+        |x[1\dots N]|_u
+            &\leq |x[1\dots S_{n+1}]|_u\\
+            &\leq \aunderbrace[l1r]{
+                |x[1\dots S_{\ell} - 1]|_u + 
+                \aoverbrace[L1R]{\ell - 1}
+                    ^{\hidewidth\text{entre bloques}\hidewidth}}_{A}
+                +|x[S_{\ell}\dots S_{n+1}]|_u\\
+            &\leq A + \sum_{i=\ell}^{n+1} |x[S_{i-1} \dots S_i]|_u + \aoverbrace[L1R]{\ell - 1}^{\hidewidth\text{entre bloques}\hidewidth} \\
+            &= A + \sum_{i=\ell}^{n+1} b^{i - \ell} + i - \cancel{\ell} + \cancel{\ell} - 1 \\
+            &= A + b^{-\ell}\sum_{i=\ell}^{n+1} b^{i} + 
+                \aunderbrace[l1r]{\sum_{i=\ell}^{n+1} i - 1}_{B}\\
+            &\leq A + B + b^{-\ell} b^{n+2} & \text{(Por \ref{prop:cota-gasti})}
+    \end{align*}
+
+    Ahora veamos el cociente completo,
+
+    \begin{align*}
+        \frac{|x[1\dots N]|_u}{N}
+            &\leq \frac{A + B + b^{-\ell} b^{n+2}}{S_n} \\
+            &= \frac{A}{S_n} + \frac{B}{S_n} + \frac{ b^{-\ell} b^{n+2}}{S_n}
+    \end{align*}
+
+    Veamos los cocientes por separado. Primero, como $A$ es una constante que
+    solo depende de $\ell$, claramente $\frac{A}{S_n} \xrightarrow[N \to
+    \infty]{} 0$. Además,
+
+    \begin{align*}
+        \frac{B}{S_n}
+            &= \frac{\sum_{i=\ell}^{n+1} i - 1}{\sum_{i=1}^{n}b^i + i - 1}\\
+            &\leq \frac{\frac{n(n+1)}{2}}{b^n + n - 1}\\
+            &\approx \frac{\BigO(n^2)}{\BigO(b^n)} \xrightarrow[N \to \infty]{} 0.
+    \end{align*}
+
+    Finalmente,
+
+    \begin{align*}
+        \frac{b^-\ell b^{n+2}}{S_n}
+            &= \frac{b^-\ell b^{n+2}}{\sum_{i=1}^{n}b^i + i - 1} \\
+            &\leq \frac{b^-\ell b^{n+2}}{b^n + \aunderbrace[l1r]{n - 1}_{\geq 0}} \\
+            &\leq \frac{b^-\ell b^{\cancel{n}+2}}{\cancel{b^n}}\\
+            &= b^{-\ell} b^2.
+    \end{align*}
+
+    Juntando todo,
+
+    \begin{align*}
+        \limsup_{N \to \infty} \frac{|x[1\dots N]|_u}{N}
+            &\leq \cancelto{0}{\frac{A}{S_n}} + \cancelto{0}{\frac{B}{S_n}} + b^{-\ell} b^2 \\
+            &< b^{-\ell}  \aunderbrace[l1r]{b^3}_{C}.
+    \end{align*}
+
+    En conclusión, por el Teorema de \nameref{teo:piatetski-shapiro} tomando $C
+    = b^3$, $x$ es normal para cualquier base $b$, y por lo tanto es normal.
+\end{proof}
+
+\section*{Ejercicio 3}
+
+\begin{definition}[Collares $(k, n)$-perfectos] Una secuencia circular es $(k,
+n)$-perfecta si tiene longitud $n |A|^k$ y cada palabra de longitud $k$ ocurre
+exactamente $n$ veces en posiciones diferentes modulo $n$, para cualquier
+convención del punto inicial.
+
+\begin{definition}[Secuencias $(k, k)$-perfectas] Una secuencia (no circular)
+perfecta de orden $k$ se obtiene partiendo de una secuencia circular $(k,
+k)$-perfecta y agregando como sufijo los primeros $k-1$ símbolos (así simulando
+la circularidad)
+\end{definition}
+    
+\end{definition}
+
+Demostrar que la concatenación de secuencias $(2n, 2n)$-perfectas para
+$n = 1, 2, 3, \dots$ es una secuencia normal.
+
+\begin{proof}[Dem.]
+Voy a llamar a cada secuencia $(2i, 2i)$-perfecta $C_i$, y de esa forma mi
+secuencia entera se puede expresar como
+
+$$x = C_1 C_2 \dots.$$
+
+Tomo $b = |A|$ el tamaño del alfabeto, y defino la longitud del segmento inicial
+hasta la secuencia $C_i$ inclusive como
+
+\begin{align*}
+    S_k &= \sum_{i=1}^{k} |C_i| \\
+        &= \sum_{i=1}^{k} 2i \cdot b^{2i} + 2i - 1.
+\end{align*}
+
+Para ver que sea normal, quiero aplicar el Teorema de
+\nameref{teo:piatetski-shapiro}. Sea $\ell$ una longitud, $u \in A^\ell$ un
+bloque. Tomo $n > S_{\ceil{\ell/2}}$. Se que en una secuencia $(2n,
+2n)$-perfecta, $u$ aparece a lo sumo $2n \cdot b^{2n -\ell} + 2n - \ell$ veces,
+pues
+
+\begin{itemize}
+    \item $2n$ es la cantidad de apariciones de cualquier palabra de longitud
+    $2n$ en un collar $(2n, 2n)$-perfecto, por definición
+    \item $b^{2n -\ell}$ es la cantidad de formas diferentes de
+    \textit{rellenar} las palabras que comiencen con el bloque $u$.
+    \item $2n - \ell$ contempla las posiciones en las cuales podría aparecer $u$
+    que no pueda a ser al principio de una palabra de longitud $2n$, porque se
+    pasaría del final del bloque.
+\end{itemize}
+
+% TODO: Dibujito
+
+Sea $N$ una posición cualquiera de $x$. Puedo tomar $n$ tal que
+
+\[S_n \leq N < S_{n+1}.\]
+
+Luego,
+
+\begin{align*}
+    |x[1\dots N]|_u
+        &\leq |x[1\dots S_{n+1}]|_u \\
+        &\leq 
+            \aunderbrace[l1r]{|x[1\dots \ceil{\ell/2} - 1]|_u
+            + \aoverbrace[L1R]{\ell - 1}^{\hidewidth\text{entre bloques}\hidewidth}}_{A}
+            + |x[\ceil{\ell/2} \dots S_{n+1}]|_u \\
+        & = A + |x[\ceil{\ell/2} \dots S_{n+1}]|_u \\
+        &\leq A +
+            \sum_{i = \ceil{\ell/2}}^{n+1}
+                |x[S_{i-1}\dots S_{i}]|_u
+                + \aoverbrace[L1R]{\ell - 1}^{\hidewidth\text{entre bloques}\hidewidth} \\
+        &\leq A +
+            \sum_{i = \ceil{\ell/2}}^{n+1}
+                2i \cdot b^{2i - \ell} + 2i - \bcancel{\ell}
+                + \bcancel{\ell} - 1 \\
+        &= A +
+            \sum_{i = \ceil{\ell/2}}^{n+1} 2i \cdot b^{2i - \ell}
+            + \aoverbrace[L1R]{\sum_{i = \ceil{\ell/2}}^{n+1} 2i - 1}^{B} \\
+        &\leq A + B +
+            \sum_{i = \ceil{\ell/2}}^{n+1} 2(n+1) \cdot b^{2i - \ell} \\
+        &= A + B +
+            2(n+1) b^{-\ell}\sum_{i = \ceil{\ell/2}}^{n+1} b^{2i}\\
+        &\leq A + B +
+            2(n+1) b^{-\ell} b^{2(n+2)} &\text{(Por Prop. \ref{prop:cota-gasti})}
+\end{align*}
+
+Por lo tanto,
+
+\begin{align*}
+    \frac{|x[1\dots N]|_u}{N}
+        &\leq \frac{|x[1\dots S_{n+1}]|_u}{S_n} \\
+        &\leq \frac{A + B + 2(n+1) b^{-\ell} b^{2(n+2)}}{S_n} \\
+        &= \frac{A}{S_n} + \frac{B}{S_n} + \frac{2(n+1) b^{-\ell} b^{2(n+2)}}{S_n}
+\end{align*}
+
+Veamos cada una por separado. Primero,
+
+\begin{align*}
+    \frac{2n b^{-\ell} b^{2(n+2)}}{S_n}
+        &= \frac
+            {2(n+1) b^{-\ell} b^{2(n+2)}}
+            {\sum_{i=1}^{n} 2i \cdot b^{2i} + 2i - 1} \\
+        &\leq \frac
+            {(2n + 2) b^{-\ell} b^{2(n+2)}}
+            {2n \cdot b^{2n} + \aunderbrace[l1r]{2n - 1}_{\geq 0}} \\
+        &\leq \frac
+            {(2n+2) b^{-\ell} b^{\bcancel{2n}+4}}
+            {2n \cdot \bcancel{b^{2n}}}\\
+        &=\frac{\cancel{2n}b^{4-\ell}}{\cancel{2n}} +
+        \aunderbrace[l1r]{\frac{2b^{4-\ell}}{2n}}_{\xrightarrow[N \to \infty]{}\ 0}
+        \\ 
+        &= b^{-\ell} b^{4}
+\end{align*}
+
+Como $A$ no depende de $n$, claramente $\frac{A}{S_n} \underset{N \to
+\infty}{\longrightarrow} 0$. Además, como
+$$B = \sum_{i = \ceil{\ell/2}}^{n+1} 2i - 1 \leq \sum_{i = 1}^{n+1} 2i - 1 = n^2,$$
+
+Tengo que
+
+\begin{align*}
+    \frac{B}{S_n}
+        &= \frac
+            {\sum_{i = \ceil{\ell/2}}^{n+1} 2i - 1}
+            {\sum_{i=1}^{n} 2i \cdot b^{2i} + 2i - 1} \\
+        &\leq \frac
+            {n^{\cancel{2}}}
+            {2\cancel{n} \cdot b^{2n}}\\
+        &\approx \frac{\BigO(n)}{\BigO(b^n)}
+        \underset{N \to
+        \infty}{\longrightarrow} 0
+\end{align*}
+
+Juntando todo,
+
+\begin{align*}
+    \limsup_{N \to \infty} \frac{|x[1\dots N]|_u}{N}
+        &\leq \limsup_{N \to \infty}
+            \cancelto{0}{\frac{A}{S_n}} +
+            \cancelto{0}{\frac{B}{S_n}} +
+            \frac{2(n+1) b^{-\ell} b^{2(n+2)}}{S_n} \\
+        &= b^{-\ell}b^4 < \aunderbrace[l1r]{b^5}_{C} \cdot b^{-\ell}.
+\end{align*}
+
+Por lo tanto, aplicando el Teorema de \nameref{teo:piatetski-shapiro} con $C =
+b^5$ afirmamos que $x$ es normal para todo $b$, entonces es normal.
+
+\end{proof}
+
+\end{document}
