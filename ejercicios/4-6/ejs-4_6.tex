@@ -1,0 +1,745 @@
+\documentclass{article}
+
+% Matemática
+\usepackage{amsmath}    % símbolos matemáticos
+\usepackage{amsthm}     % teoremas
+\usepackage{amsfonts}   % \mathbb
+\usepackage{amssymb}    % \therefore
+\usepackage{bm}         % bold math (https://ctan.org/pkg/bm)
+\usepackage{abraces}    % \aoverbrace http://ctan.org/pkg/abraces
+% https://tex.stackexchange.com/questions/132526/overbrace-and-underbrace-with-square-bracket
+
+\usepackage[makeroom]{cancel}   % \cancel
+
+% Figuras
+\usepackage{tikz}                   % gráficos
+\usepackage{float}                  % [H]
+\usepackage{xcolor}                 % colores https://es.overleaf.com/learn/latex/Using_colours_in_LaTeX
+
+% Formateo
+\usepackage{framed}     % env leftbar
+
+% Texto
+\usepackage[shortlabels]{enumitem}  % enumerate con letras
+
+% Referencias
+\usepackage[colorlinks=true]{hyperref}
+
+\usepackage{mathtools}
+% Macros para símbolos
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\newcommand{\BigO}{\mathcal{O}}
+
+% Teoremas, corolarios, etc.
+% https://www.overleaf.com/learn/latex/theorems_and_proofs
+\theoremstyle{definition} % Para que no salga en italicas
+
+\newtheorem{theorem}{Teorema}
+\newtheorem*{theorem*}{Teorema}
+
+\newtheorem{lemma}{Lema}
+\newtheorem*{lemma*}{Lema}
+
+\newtheorem{proposition}{Prop.}
+\newtheorem*{proposition*}{Prop}
+
+\newtheorem{corollary}{Corolario}
+\newtheorem*{corollary*}{Corolario}
+
+\newtheorem{definition}{Def.}
+\newtheorem*{definition*}{Def}
+
+\newtheorem*{observation*}{Obs}
+
+% Comandos de AAA
+\newcommand{\sigmatsequence}{\overset{\rightarrow}{\sigma}}
+\newcommand{\tautsequence}{\overset{\rightarrow}{\tau}}
+\newcommand{\measure}[1]{\mu\left(#1\right)}
+
+% Entornos
+\newenvironment{nota}[1]
+    {\begin{leftbar}\textbf{#1}}
+    {\end{leftbar}}
+
+\author{Manuel Panichelli}
+\title{Algoritmos, Azar y Autómatas\\Resolución Ejercicios 4 a 6}
+
+\begin{document}
+\maketitle
+
+\section*{Resultados previos}
+
+
+\begin{lemma}[Pequeño truco de límites]\label{lemma:lim-trick}
+    \textit{Relación entre lim inf / lim sup y lim}
+
+
+    Sean $(x_{1, n})_{n\geq0}, (x_{2, n})_{n\geq0},\dots (x_{k, n})_{n\geq0}$
+    una secuencia de números reales tales que $\sum_{i=1}^{k} x_{i, n} = 1$ y
+    $c_1, c_2, \dots c_k$ numeros reales tales que $\sum_{i=1}^{k} c_i = 1$.
+    Luego,
+    
+    \begin{enumerate}
+        \item $\forall i\ \liminf_{n\to \infty} x_{i, n} \geq c_i
+        \implies \forall i\ \lim_{n\to \infty} x_{i, n} = c_i$
+
+        \item $\forall i\ \limsup_{n\to \infty} x_{i, n} \leq c_i
+        \implies \forall i\ \lim_{n\to \infty} x_{i, n} = c_i$
+    \end{enumerate}
+
+    Vamos a aplicar esto para $k = b^\ell$, 
+    $x_{n, i} = \frac{\|x[1\dots n]\|_{w_i}}{b^\ell}$ con $i = 1, 2, \dots b^\ell$.
+    
+    Notar que
+    
+    $$\sum_{i=1}^{b^\ell} \frac{\|x[1\dots n]\|_{w_i}}{b^\ell} = 1,$$
+    
+    ya que es la suma de las frecuencias, donde
+
+    \begin{itemize}
+        \item n = \# palabras de $\ell$ caracteres (n posiciones que quiero mirar)
+        \item $w_i$ = palabras de longitud $\ell$.
+    \end{itemize}
+\end{lemma}
+
+\subsection{Bad}
+
+\begin{definition}[Malas palabras]
+    \[
+        \text{Bad}(A, k, w, \varepsilon) = \left\{
+            v \in A^k : \left|
+                |v|_w - \frac{k}{b^{|w|}}
+            \right| > \varepsilon k
+        \right\}
+    \]
+\end{definition}
+
+\begin{lemma}[Hardy \& Wright, Theorem 148]\label{lemma:bad-HW}
+    Sean $b \geq 2$ y $k$ enteros positivos. Si $6/k \leq \varepsilon \leq 1/b$
+    entonces para cada símbolo $d$ en $A$, 
+    
+    \[
+        |Bad(A, k, d, \varepsilon)| < 4e^{-b\varepsilon^2k/6}b^k.
+    \]
+\end{lemma}
+
+\subsection{Turing}
+
+\begin{proposition}\label{prop:turing-en-positive-measure}
+    Sea $E_n$ el conjunto de candidatos del algoritmo de Turing,
+
+    Para cada $n$, $E_n$ es una unión finita de intervalos abiertos con bordes
+    racionales, y para $n \geq n_0$, $\mu E_n > 1 - 1/N_n^2$.
+
+    \begin{corollary*}
+        $\bigcap_{n \geq 0} E_n$ tiene medida positiva.
+    \end{corollary*}
+\end{proposition}
+
+\begin{proposition}[Medida de intersección]\label{prop:lebesgue-cap}
+    \[
+        \measure{A \cap B} 
+        = \measure{A \setminus B^c}
+        \geq \measure{A} - \measure{B^c} 
+        = \measure{A} - ( 1 - \measure{B})
+    \]
+\end{proposition}
+
+\section*{Ejercicio 4 - Piatetski-Shapiro}
+
+Demostrar la versión de ocurrencias alineadas de Piatetski-Shapiro
+
+\begin{theorem}[Piatetski-Shapiro]\label{teo:piatetski-shapiro}
+    Sea $x$ un número real, $b \geq 2$ un entero y $A = \{0, \dots, b - 1\}$.
+    Las siguientes son equivalentes
+    \begin{enumerate}
+        \item $x$ es normal a base $b$
+        \item Existe una constante $C$ tal que para infinitas longitudes $\ell$ y
+        para todo $w \in A^\ell$
+
+        \[
+            \limsup_{n \to \infty}
+            \frac{|x[1\dots n]|_w}{n} < C \cdot b^{-\ell}.
+        \]
+        \item Existe una constante $C$ tal que para infinitas longitudes $\ell$ y
+        para todo $w \in A^\ell$
+
+        \[
+            \limsup_{n \to \infty}
+            \frac{\|x[1\dots n\ell]\|_w}{n} < C \cdot b^{-\ell}.
+        \] 
+    \end{enumerate}
+\end{theorem}
+
+
+\begin{lemma}\label{lemma:bloques}
+    Para todo $w \in A^*, n$ y $k$, contar la cantidad de apariciones de $w$
+    en $x[1\dots n\ell]$ es lo mismo que partir $x$ en bloques de longitud
+    $\ell k$ alineados y contar dentro de cada uno.
+
+    \[
+        \|x[1\dots n\ell k]\|_w = 
+            \sum_{v\in A^\ell k} \|x[1\dots n\ell k]\|_v \|v\|_w
+    \]
+
+    No puede suceder que aparezca de forma alineada un $w$ en el medio de
+    dos bloques $v$, ya que como los bloques son de tamaño $\ell k$ están
+    alineados con las ocurrencias de $w$.
+\end{lemma}
+
+\begin{definition}
+    Defino Bad', un análogo a Bad pero para ocurrencias alineadas.
+
+    \[
+        \text{Bad'}(A, k, w, \varepsilon) = \left\{
+            v \in A^k : \left|
+                \|v\|_w - \frac{k}{b^{|w|}}
+            \right| > \varepsilon k
+        \right\}
+    \]
+\end{definition}
+
+\begin{lemma}\label{lemma:good-word} Sea $v$ una \textit{buena palabra}, es
+    decir $v \in A^{\ell k} \setminus \text{Bad'}(A^\ell, k, w, \varepsilon)$.
+    Se que la frecuencia de apariciones alineadas de $w$ en $v$ se parece mucho
+    al esperado, $k/b^{\ell}$. Por lo tanto, puedo multiplicar la cantidad de
+    apariciones por un factor de achique pequeño y seguirá valiendo:
+
+    \[
+        \|v\|_w \geq \frac{k}{b^{\ell}} (1 - \varepsilon)
+        \Leftrightarrow \frac{\|v\|_w}{k} \geq (1 - \varepsilon)b^{-\ell}
+    \]
+\end{lemma}
+
+\begin{proof}[Dem. de \nameref{teo:piatetski-shapiro}]
+    Voy a demostrar que 3. $\Rightarrow$ 1.
+
+    Sea $\ell$ una de las infinitas longitudes que cumple Piatetski
+    Shapiro,
+    
+    \begin{equation}\label{dem:pts-hip}
+        \limsup_{n \to \infty}
+        \frac{\|x[1\dots n\ell]\|_w}{n} < C \cdot b^{-\ell}.
+    \end{equation}
+
+    Fijo $\varepsilon \leq 1/b^\ell, w \in A^\ell$ y sea $k$ suficientemente
+    grande tal que 
+    \begin{equation}\label{dem:pts-bad-size}
+        |\text{Bad'}(A^\ell, k, w, \varepsilon)| < \varepsilon b^{\ell k}
+    \end{equation}
+
+    Tengo que (con Bad' = $\text{Bad'}(A^\ell, k, w, \varepsilon)$)
+
+    \begin{align*}
+        \liminf_{n\to \infty} \frac{\|x[1\dots n\ell k]\|_w}{nk}
+        &= \sum_{v\in A^{\ell k}}
+            \aoverbrace[L1R]{
+                \frac{\|x[1\dots n\ell k]\|_v}{n}
+                \frac{\|v\|_w}{k}
+            }^{C}
+        &&\text{(Lema \ref{lemma:bloques})} \\
+        &= \liminf_{n\to \infty}
+            \sum_{v\in A^{\ell k} \setminus \text{Bad'}} C +
+            \sum_{v\in\text{Bad'}} C
+        &&(\text{Total = bad + good}) \\
+        &\geq \liminf_{n\to \infty}
+            \sum_{v\in A^{\ell k} \setminus \text{Bad'}} C \\
+        &= \liminf_{n\to \infty}
+            \sum_{v\in A^{\ell k} \setminus \text{Bad'}}
+                \frac{\|x[1\dots n\ell k]\|_v}{n}
+                \frac{\|v\|_w}{k} \\
+        &\geq (1-\varepsilon)b^{-\ell} \liminf_{n\to \infty}
+            \sum_{v\in A^{\ell k} \setminus \text{Bad'}}
+                \frac{\|x[1\dots n\ell k]\|_v}{n}
+        &&\text{(Lema \ref{lemma:good-word})} \\
+        &=(1-\varepsilon)b^{-\ell} \liminf_{n\to \infty}
+            \left(1 - 
+                \sum_{v\in \text{Bad'}}
+                    \frac{\|x[1\dots n\ell k]\|_v}{n}
+            \right)
+        &&(\text{freq bad + freq good} = 1) \\
+        &\geq(1-\varepsilon)b^{-\ell}
+            \left(1 - 
+                \sum_{v\in \text{Bad'}}
+                    \limsup_{n\to \infty}
+                    \frac{\|x[1\dots n\ell k]\|_v}{n}
+            \right)\\
+        &> (1-\varepsilon)b^{-\ell}
+        \left(1 - 
+            \sum_{v\in \text{Bad'}}
+                C \cdot b^{-\ell k}
+        \right)
+        &&(\text{\ref{dem:pts-hip}}) \\
+        &\geq (1-\varepsilon)b^{-\ell}
+        \left(1 - 
+            \varepsilon b^{\ell} C b^{-\ell k}
+        \right)
+        &&(\text{\ref{dem:pts-bad-size}}) \\
+        &= (1-\varepsilon)b^{-\ell} (1 - C \varepsilon)
+    \end{align*}
+
+    Y como esto vale para todo $\varepsilon \leq 1/b^\ell$ positivo, puedo tomar
+    uno suficientemente chico como para que $(1 - \varepsilon)$ y $(1 -
+    C\varepsilon)$ se acerquen a 1, y de esa forma
+
+    \[
+        \liminf_{n\to \infty} \frac{\|x[1\dots n\ell k]\|_w}{nk}
+        \geq b^{-\ell}.
+    \]
+
+    Como esto vale para toda $w \in A^\ell$, por el Lema \ref{lemma:lim-trick}
+    
+    \[
+        \lim_{n\to \infty} \frac{\|x[1\dots n\ell k]\|_w}{nk}
+        = b^{-\ell}.
+    \]
+
+    Tomando $n' = nk$, tengo
+
+    \[
+        \lim_{n'\to \infty} \frac{\|x[1\dots n'\ell]\|_w}{n'}
+        = b^{-\ell}.
+    \]
+
+    $\therefore$ x es normal.
+\end{proof}
+
+
+\section*{Ejercicio 5 - Turing}
+
+Adaptar el algoritmo de Turing para que genere un número normal en base 2 y 3, y
+que lo exprese en base 3 en vez de base 2. Demostrar su correctitud.
+
+\begin{observation*}
+    Un número real $x$ es normal en base 2 y 3 si es simplemente normal en todas
+    las bases $2^i$ y $3^i$ para $i \in \mathbb{N}$.
+\end{observation*}
+
+\begin{definition*}[Discrepancia simple]
+    Sea $x \in [0, 1]$ un real en el intervalo unitario y $x_b$ su expansión en
+    base $b$. Definimos su \textbf{discrepancia simple} para algún $N$ tamaño de
+    segmento inicial de la siguiente forma,
+
+    \[
+        \Delta_N(x_b) = \max_{d \in \{ 0, \dots, b-1 \}}
+        \left|
+            \frac{|x_b[1\dots N]|_d}{N} - \frac{1}{b}
+        \right|.
+    \]
+
+    $x$ será simplemente normal en base $b$ si,
+
+    \[
+        \lim_{N\to \infty} \Delta_N(x_b) = 0.
+    \]
+\end{definition*}
+
+
+\begin{definition*}[Pasos del algoritmo]
+    Usamos $n$ como el paso del algoritmo y definimos las sig funciones,
+    
+    \begin{itemize}
+        \item[] $\bm{N_n} = 2^{n_0 + 2n}$, el número de dígitos vistos en el paso
+        $n$, donde $n_0 = 11$ (\textit{$n_0$ solo está ahí para simplificar las
+        cuentas})
+        
+        \item[] $\bm{b_n} = \floor{\log{N_n}}$ es la base más grande considerada en
+        el paso $n$
+
+        \item[] $\bm{\varepsilon_n} = 1/b_n$ es la diferencia entre la
+        frecuencia esperada de dígitos y la frecuencia actual en el paso $n$. El
+        \textit{nivel de tolerancia}, dependiente de la cantidad de bases que se
+        están viendo.
+    \end{itemize}
+
+    $b_n \geq 2$ y es no decreciente y no acotada, $N_n$ es no decreciente y no
+    acotada, y $\varepsilon_n$ es no creciente y va a 0.
+\end{definition*}
+
+\begin{definition*}[Conjuntos de candidatos]
+    Definimos los conjuntos de números reales
+
+    \begin{align*}
+        E_0 &= (0, 1) \\
+        E_n &= \bigcap_{b \in B }
+            \{ x \in (0, 1) : \Delta_{N_n} (x_b) < \varepsilon_n \}
+    \end{align*}
+
+    Donde $B$ es el conjunto de bases consideradas,
+
+    \[
+        B = \{ 
+            b \mid b \in \{ 2, \dots, b_n \} \text{ y }
+            \exists\ i \in \mathbb{N} : b = 3^i \text{ o } b = 2^i
+        \}
+    \]
+
+    Para cada $n$, el conjunto $E_n$ consiste de todos los números reales cuyas
+    expansiones en las bases $2, 3, 4, 9, \dots, b_n$ exhiben \textbf{buenas
+    frecuencias} de digitos hasta $\varepsilon_n$, en los primeros $N_n$ digitos
+    (en el segmento inicial de tamaño $N_n$)
+\end{definition*}
+
+El algoritmo en sí es el siguiente, con output $y_1 y_2 y_3 \dots$
+
+\begin{itemize}
+    \item[] \textbf{Paso inicial,} \bm{$n = 0$}. $I_0 = (0, 1),\ E_0 = (0, 1)$
+    \item[] \textbf{Paso recursivo,} \bm{$n > 1$}
+    
+        En el paso anterior computamos $I_{n - 1}$. Sean $I_n^0, I_n^1$ y
+        $I_n^2$ el primer, segundo y tercer tercio de $I_{n - 1}$
+        respectivamente.
+        \begin{itemize}
+            \item Si $\mu \left( I_n^0 \cap \bigcap_{j = 0}^{n} E_j \right) >
+            1/N_n$ entonces $I_n = I_n^0$ y $y_n = 0$.
+            \item Si $\mu \left( I_n^1 \cap \bigcap_{j = 0}^{n} E_j \right) >
+            1/N_n$ entonces $I_n = I_n^1$ y $y_n = 1$.
+            \item Sino, $I_n = I_n^2$ y $y_n = 2$.
+        \end{itemize}
+        \textit{$\mu A$ es la medida de Lebesgue de A. }
+\end{itemize}
+
+\subsection*{Demostración de correctitud de Turing adaptado}
+
+La estrategia para demostrar la correctitud del algoritmo consiste en mostrar
+que,
+
+\begin{itemize}
+    \item $\bigcap_{n \geq 0} E_n$ tiene medida positiva y consiste de números
+    normales en base 2 y 3.
+    \item El algoritmo genera $x = 0.y_1 y_2 y_3 \ldots \in \bigcap_{n
+    \geq 1} I_n$
+    \item El algoritmo preserva el invariante
+    $\mu \left( I_n \cap \bigcap^n_{j = 1} E_j \right) > 0$ (hay números)
+    \item En el infinito,
+    \[
+        \bigcap_{n \geq 1} I_n = 
+        \bigcap_{n \geq 0} \left( 
+            I_n \cap \bigcap^n_{j = 1} E_j 
+        \right)
+    \]
+
+    \textit{Esto es así pues $(I_n)_{n \geq 0}$ es anotado y se cumple el
+    invariante $\mu(I_n \cap_{j=0}^n E_j)$}
+
+\end{itemize}
+
+Juntando todo, el algoritmo genera $x$, y
+
+\[
+    x \in 
+    \bigcap_{n \geq 1} I_n 
+    = \bigcap_{n \geq 0} \left( I_n \cap \bigcap^n_{j = 1} E_j \right)
+    \subset \bigcap_{n \geq 0} E_n
+\]
+
+Luego, como todos los elementos de la intersección de candidatos son
+normales en base 2 y 3, el punto $x = 0.y_1 y_2 y_3 \ldots$ que pertenece a
+ese conjunto es normal en base 2 y 3.
+
+Veamos las demostraciones pendientes de los puntos,
+
+\begin{lemma*}
+    El conjunto $\bigcap_{n \geq 0} E_n$ tiene medida positiva y consiste solo
+    números normales en base 2 y 3.
+\end{lemma*}
+\begin{proof} Veamos que tiene medida positiva y que son normales en base 2 y 3.
+    \begin{itemize}
+        \item Como el conjunto $E_n$ del algoritmo de Turing original
+        $$E_n = \bigcap_{b \in \{2, \dots, b_n\}} \{ x \in (0, 1) :
+        \Delta_{N_n}(x_b) < \varepsilon_n\}$$
+        
+        tiene medida positiva (Prop \ref{prop:turing-en-positive-measure}), y
+        este considera menos bases para la intersección (solo múltiplos de 2 y 3
+        en vez de todas), va a tener más elementos, y por lo tanto
+
+        $$E_n' \supset E_n \Rightarrow \mu E_n' > \mu E_n > 0 \Rightarrow \mu
+        E_n'> 0.$$
+
+        \item Quiero ver que consiste de números normales en base 2 y 3.
+        
+        Sea $x \in \bigcap_{n \geq 0} E_n$. Luego, para todo $n$, $x \in E_n$,
+        entonces para $b \in B$
+
+        $$\Delta_{N_n}(x_b) \leq \varepsilon_n.$$
+
+        Sea $b$ una base y $M$ una posición. Tomo $n$ tal que,
+
+        $$N_n \leq M < N_{n + 1}.$$
+
+        Como 
+        $$\Delta_N(x_b) = \max_{d \in \{ 0, \dots, b-1 \}}
+        \left|
+            \frac{|x_b[1\dots N]|_d}{N} - \frac{1}{b}
+        \right|,$$
+
+        Tengo que para todo $d$
+
+        \begin{align*}
+            \Delta_N(x_b) < \varepsilon_n
+            &\Leftrightarrow 
+                \frac{|x_b[1\dots N]|_d}{N} - \frac{1}{b} < \varepsilon_n\\
+            &\Leftrightarrow
+            |x_b[1\dots N]|_d < \left(\varepsilon_n + \frac{1}{b}\right) N
+        \end{align*}
+
+
+        Para cada $b$ mas chico que $b_n$ tenemos que para todo dígito $d \in
+        \{0, \dots, b - 1\}$
+
+        \begin{align*}
+            \frac{|x_b[1\dots M]|_d}{M} 
+                &\leq \frac{|x_b[1\dots N_{n+1}]|_d}{N_n} \\
+                &\leq \frac{N_{n+1}}{N_n}\left(\varepsilon_{n+1} + \frac{1}{b}\right)\\
+                &=\frac{2^{n_0 + 2n + 2}}{2^{n_0 + 2n}}
+                    \left(\varepsilon_{n+1} + \frac{1}{b}\right)\\
+                &=4\left(\varepsilon_{n+1} + \frac{1}{b}\right)
+        \end{align*}
+
+        Luego para cada base $b \in B$,
+
+        $$\limsup_{n\to\infty} \frac{|x_b[1\dots N]|_b}{N} < 4 b^{-1}$$
+
+        Y para cada base $b \in B$ y cada digito en base $b$,
+
+        $$\limsup_{n\to\infty} \frac{|x_b[1\dots N]|_b}{N} < 4 b^{-\ell}$$
+
+        Por lo tanto, por \nameref{teo:piatetski-shapiro} $x$ es simplemente
+        normal en toda base $b \in B$, por lo que es normal en bases 2 y 3.
+    \end{itemize}
+\end{proof}
+
+\begin{lemma*}[Invariante]
+    La siguiente condición es invariante en cada paso $n$ del algoritmo,
+
+    \[
+        \measure{ 
+            I_n \cap \bigcap_{j=1}^n E_j
+        } > 0.
+    \]
+\end{lemma*}
+\begin{proof}
+    Lo demostramos por inducción sobre $n$. Recordando que $N_n = 2^{n_0 + 2n}$
+    \begin{itemize}
+        \item CB $(n = 0)$
+        
+        Tenemos que
+        
+        \[
+            \measure{I_0 \cap E_0} 
+            = \measure{(0, 1)} 
+            = 1 
+            > \frac{1}{N_0^2}
+            = \frac{1}{2^{2n_0}}
+        \]
+
+        \item PI $(n \Rightarrow n + 1)$
+        
+        Tenemos como HI que vale para $n$,
+
+        \[
+            \measure{I_n \cap \bigcap_{j = 0}^n E_j} > \frac{1}{N_n}.
+        \]
+
+        Veamos que vale para $n+1$. Por la Prop.
+        \ref{prop:turing-en-positive-measure} sabemos que $\mu E_n > 1 -
+        1/N^2_n$, luego
+
+        \begin{align*}
+            \measure{I_n \cap \bigcap_{j = 0}^{n + 1} E_j}
+            &= \measure{ (I_n \cap \bigcap_{j = 0}^{n} E_j) \cap E_{n + 1}} \\
+            &\geq \measure{I_n \cap \bigcap_{j = 0}^{n} E_j} - \measure{E_{n + 1}^c}
+            && \text{(Prop \ref{prop:lebesgue-cap}}) \\
+            &> \frac{1}{N_n} - \frac{1}{N^2_{n+1}}
+            &&\text{(HI y Prop. \ref{prop:turing-en-positive-measure})} \\
+            &> \frac{2}{N_{n+1}}
+        \end{align*}
+
+        Y finalmente, el algoritmo elije $I_{n+1}$ entre $I_n^0, I_n^1$ e
+        $I_n^2$ asegurando que
+        
+        \[
+            \measure{I_{n+1} \cap \bigcap_{j = 0}^{n + 1} E_j} 
+                > \frac{1}{N_{n+1}}.
+        \]
+
+    \end{itemize}
+\end{proof}
+
+\section*{Ejercicio 6 - BHS}
+
+Adaptar el algoritmo BHS para generar un número normal en base 2 y 3 (en vez de
+uno absolutamente normal) y expresarlo en su expansión fraccionaria en base 3
+(en vez de base 2).
+
+\begin{definition*}[b-ario]
+    Decimos que un intervalo es $b$-ario (o $b$-ádico) de orden $n$ si tiene la
+    forma
+
+    \[
+        \left(\frac{a}{b^n}, \frac{a+1}{b^n}\right)
+    \]
+
+    para algun entero $a$ tal que $0 \leq a < b^n$.
+
+    Si $\sigma_b$ y $\tau_b$ son intervalos $b$-arios y $\tau_b \subseteq
+    \sigma_b$ decimos que el \textit{orden relativo} de $\tau_b$ con respecto a
+    $\sigma_b$ es el orden de $\tau_b$ menos el orden de $\sigma_b$.
+\end{definition*}
+
+\begin{lemma}[Lemma 3.1 BHS 2013]\label{lemma:bhs-concat-good}
+    Sean $u$ y $v$ bloques y $\varepsilon$ un real positivo,
+
+    \begin{enumerate}
+        \item Si $\Delta(u) < \varepsilon$ y $\Delta(v) < \varepsilon$ entonces
+        $\Delta(uv) < \varepsilon$.
+
+        \textit{Si u es buena y v también, entonces su concatenación lo es.
+        Esto me dice que si cuento dígito, puedo considerar la suma de las
+        proporciones y va a andar todo bien.}
+
+        \item Si $\Delta(u) < \varepsilon, v = a_1 \dots a_{|v|}$ y $|v|/|u| <
+        \varepsilon$ entonces $\Delta(vu) < 2\varepsilon$ y para cada $\ell$ tal
+        que $1 \leq \ell \leq |v|, \Delta(ua_1a_2\dots a_l) < 2\varepsilon$.
+
+        $|v|/|u| < \varepsilon \Leftrightarrow |v| < \varepsilon|u|$, y como
+        $\varepsilon$ es un número chiquito entre 0 y 1, se interpreta como que
+        $u$ es muy chica en comparación a $v$.
+
+        \textit{Concatenar una palabrita mucho mas chica que una buena al lado
+        de una buena a lo sumo empeora el doble la discrepancia}
+
+        \textit{Para el algoritmo, nos dice que lo que ya viste no hace falta
+        volverlo a mirar, podés mirar cosas nuevas. Si tengo un buen segmento
+        inicial y lo que elijo para agregar es cortito, a lo sumo llevo mi
+        discrepancia al doble.}
+    \end{enumerate}
+\end{lemma}
+
+\begin{lemma}[Lemma 3.4 BHS2013]\label{lemma:bhs-subinterval}
+
+    Para cualquier intervalo $I$ y cualquier base $b$, hay un subintervalo
+    $b$-ario $J$ tal que $\mu J \geq \mu I / (2b)$.
+
+    \textit{Podemos encontrar J grande y $b$-ádico que se parezca mucho en medida}
+\end{lemma}
+
+\begin{definition*}[t-sequences]
+    Una t-sequence $\sigmatsequence$ es una secuencia de intervalos $(\sigma_2,
+    \dots, \sigma_t)$ tales que
+
+    \begin{itemize}
+        \item Para cada base $b = 2, \dots, t$, $\sigma_b$ es b-ario.
+        \item Para cada base $b = 3, \dots, t$, $\sigma_b \subset \sigma_{b-1}$
+        y $\mu \sigma_b \geq \mu \sigma_{b-1} / (2b)$.
+    \end{itemize}
+
+    \textit{Son intervalos anidados, con la medida lo más grande posible.}
+
+    La definición implica que $\mu \sigma_t \geq (\mu \sigma_2)/(2^t t!)$
+    \textit{(es un peor caso, no siempre ocurre y a veces calza justo)}
+
+\end{definition*}
+
+\begin{definition*}[Refinamiento]
+    Dos definiciones,
+
+    \begin{itemize}
+        \item Una $t$-sequence $\overset{\rightarrow}{\tau} = (\tau_2, \dots,
+        \tau_t)$ \textit{refina} una $t'$-secuencia $\sigmatsequence = (\sigma_2,
+        \dots, \sigma_{t'})$ si $t' \leq t$ y $\tau_b \subset \sigma_b$ para cada
+        $b = 2, \dots, t'$.
+
+        \item Un refinamiento tiene \textit{discrepancia} menor a $\varepsilon$
+        si para cada $b = 2, \dots, t'$ hay palabras $u, v$ tales que $\sigma_b
+        = I_u, \tau_b = I_{uv}$ y $\Delta(v) < \varepsilon$.
+    \end{itemize}
+    
+
+    \textit{El $\tau$ que elegiste tiene una discrepancia $< \varepsilon$.}
+\end{definition*}
+
+\begin{lemma}\label{lemma:bhs-refinement}
+    Sean $t \geq 2$ un entero, $t' = t \vee t + 1$, $\varepsilon < 1/t$ un real
+    positivo. Luego, toda $t$-sequence $\sigmatsequence = (\sigma_2, \dots,
+    \sigma_t)$ admite un refinamiento $\tautsequence = (\tau_2, \dots,
+    tau_{t'})$ con discrepancia menor a $\varepsilon$.
+
+    El orden relativo de $\tau_2$ puede ser cualquier entero $k$ tal que
+    
+    \[
+        k \geq max
+        \left\{
+            \frac{6}{\varepsilon},
+            \frac{24(\log_2 t)(\log(t!))}{\varepsilon^2}
+        \right\}.
+    \]
+\end{lemma}
+
+\begin{definition*}[Pasos del algoritmo]
+    El algoritmo considera las siguientes funciones para un paso $n$ dado,
+    
+    \begin{itemize}
+        \item[] $\bm{t_n} = \max(2, \floor{\sqrt[4]{\log n}})$ es la máxima base
+        a considerar en el paso $n$,
+        \item[] $\bm{\varepsilon_n} = 1/t_n$ es la discrepancia máxima tolerada
+        en el paso $n$, y
+        \item[] $\bm{N_n} = \floor{\log_3 n} + n_{\text{start}}$ es el número de
+        dígitos en base 3 agregados en el paso $n$,
+    \end{itemize}
+
+    Donde $n_{\text{start}}$ es el minimo entero que valida la condición del
+    Lema \ref{lemma:bhs-refinement}. Por lo tanto, requerimos que para todo $n >
+    0$,
+    
+    \[
+        \floor{\log_3 n} + n_{\text{start}} \geq max
+        \left\{
+            \frac{6}{\varepsilon},
+            \frac{24(\log_2 t)(\log(t!))}{\varepsilon^2}
+        \right\}.
+    \]
+    
+\end{definition*}
+
+\textbf{Algoritmo}
+
+Tiene de output $x = y_1 y_2 y_3\dots$ que son los símbolos en la expansión en
+base 3 de un número normal en base 2 y 3.
+
+\begin{itemize}
+    \item[] \textbf{Paso inicial} (\bm{$n = 1$})
+        
+        $\sigmatsequence_1 = (\sigma_3)$, con $\sigma_3 = (0, 1)$. Observo que $(0, 1)$ es triádico, pues
+
+        \[
+            \sigma_3 = \left( \frac{0}{3^0}, \frac{1}{3^0} \right).
+        \]
+
+    \item[] \textbf{Paso recursivo} (\bm{$n > 1$})
+    
+        En el paso anterior computamos 
+        $\sigmatsequence_{n-1} = (\sigma_3, \sigma_2, \dots, \sigma_{t_n - 1})$.
+
+        Tomamos $\sigma_n = (\tau_3, \tau_2, \dots, \tau_{t_n})$ la
+        $t_n$-sequence más a la izquierda que refina $\sigmatsequence_{n-1}$ con
+        discrepancia menor que $\varepsilon_n$ tal que si $\sigma_3 = I_u$
+        entonces $\tau_3 = I_{uv}$ con $|v| = N_n$.
+
+        Ponemos $y_{M_n + 1}\dots y_{M_n + N_n} = v$ donde $M_n = \sum_{j =
+        1}^{n} N_j$.
+\end{itemize}
+
+El algoritmo construye $\sigmatsequence_0, \sigmatsequence_1, \sigmatsequence_2,
+\dots$ tal que $\sigmatsequence_0 = (0, 1)$ y para cada $n \geq 1$,
+$\sigmatsequence_n$ es una $t_n$-sequencia que refina $\sigmatsequence_{n-1}$
+con discrepancia $\varepsilon_n$ y tal que el orden de $\sigma_{n, 2}$ es $N_n$
+mas el orden de $\sigma_{n-1, 2}$.
+
+Genera un número real $x$ en base 3 que pertenece a la intersección de todos los
+intervalos, por lo que es simplemente normal en toda base $b \in B$, y es normal
+en base 2 y 3.
+
+\end{document}
