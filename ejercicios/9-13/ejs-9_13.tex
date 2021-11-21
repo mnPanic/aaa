@@ -73,10 +73,14 @@
 
 \newtheorem*{observation*}{Obs}
 
+\newtheorem{example}{Ejemplo}
+\newtheorem*{example*}{Ejemplo}
+
 % Comandos de AAA
 \newcommand{\select}{\upharpoonright}
 \newcommand{\progends}{\downarrow}
-\newcommand{\firstn}[1]{#1[1 \dots n]}
+\newcommand{\firstn}[1]{\first{n}{#1}}
+\newcommand{\first}[2]{#2[1 \dots #1]}
 
 % Entornos
 \newenvironment{nota}[1]
@@ -84,18 +88,19 @@
     {\end{leftbar}}
 
 \author{Manuel Panichelli}
-\title{Algoritmos, Azar y Autómatas\\Resolución Ejercicios 9 a 13 (aleatoriedad)}
+\title{Algoritmos, Azar y Autómatas\\Resolución Ejercicios 9 a 13 (Aleatoriedad)}
 
 \begin{document}
 \maketitle
 
 \section*{Resultados previos}
 
-\newpage
+TODO: programa elegante, complejidad de kormogolov, definiciones de martin lof y
+etc.
 
 \section*{Ejercicio 9}
 
-\newpage
+\textit{Demostrar que los números Martin-Löf aleatorios son normales.}
 
 \section*{Ejercicio 10}
 
@@ -193,13 +198,101 @@ $\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
 
 \section*{Ejercicio 11}
 
-\newpage
+\textit{Salteado porque no era necesario resolverlo.}
+
 \section*{Ejercicio 12}
 
-\newpage
+\subsection*{12.1}
+
+\textit{Demostrar que el número $(1 - \Omega)$ es aleatorio}
+
+\begin{proposition}\label{prop:xor-bits}
+    Con los bits de $x$ puedo obtener los de $\bar{x} = 1 - x$ realizando un xor con
+    todos 1s, $x \oplus 1s = \bar{x}$.
+\end{proposition}
+
+\begin{proof}
+    Sea $g: \mathbb{N} \to \Sigma^*$ una enumeración de los programas que se
+    detienen, $\alpha_m = \sum_{j = 1}^{m} 2 ^ {-|g(j)|}$ una aproximación de
+    $\Omega$ de $m$ pasos. Defino el programa $p$,
+
+    \[
+        p = b_1 b_2 \dots b_c \first{i}{\bar{\Omega}}^*
+    \]
+
+    donde $\first{i}{\Omega}^*$ es una subrutina que es el
+    programa elegante (el más corto) que computa $\first{i}{\Omega}$ y $b_1 b_2
+    \dots b_c$ realiza los siguientes pasos,
+
+    \begin{enumerate}
+        \item[0.] Computamos $\first{i}{\bar{\Omega}}$ con
+        $\first{i}{\bar{\Omega}}^*$
+        \item Computamos $\first{i}{\Omega}$ en base a
+        $\first{i}{\bar{\Omega}}$ mediante un $\oplus$ con todos 1s.
+        \item $m = 1$. Mientras ($\alpha_m \leq \first{i}{\Omega}$), $m = m + 1$.
+        \item Sea $O = \{ U(g(j)) \mid 1 \leq j \leq m \}$ los outputs de los
+        programas que se detienen que aportan a la aproximación de $\Omega$
+        \item Sea $s$ la cadena más chica lexicográficamente tal que $s \notin O$.
+        \item Return $s$.
+    \end{enumerate}
+
+    Veamos que $|s^*| > i$, la longitud del programa elegante que computa $s$
+    (su complejidad) es más chica que $i$. Para demostrarlo supongamos lo
+    contrario, que $|s^*| \leq i$
+
+    \begin{align*}
+        \Omega 
+        &> 2^{-|s^*|} + \alpha_m
+            &&\text{($\Omega$ tiene infinitos aportes)}\\
+        &> 2^{-|s^*|} + \first{i}{\Omega}
+            &&\text{(porque $\alpha_m > \first{i}{\Omega}$)}\\
+        &\geq 2^{-i} + \first{i}{\Omega}
+            &&\text{(sup. $|s^*| \leq i$)}\\
+        &\geq \Omega
+            &&\text{($\first{i}{\Omega}$ contiene exactamente los primeros $i$ bits de $\Omega$)}
+    \end{align*}
+
+    Y llegamos a $\Omega > \Omega$ que es un absurdo. Por lo tanto, $|s^*| > i$.
+    
+    Por otro lado, como $p$ es un programa (no muy bueno) que computa $s$, se que
+
+    \begin{equation}\label{eq:comp}
+         K(s) \leq c + |\first{i}{\bar{\Omega}}^*|
+    \end{equation}
+
+    donde $c = |b_1 \dots b_c|$.
+
+    Juntando,
+
+    \begin{align*}
+        i
+            &< |s^*|\\
+            &= K(s)\\
+            &\leq c + |\first{i}{\bar{\Omega}}^*| &&\text{por (\ref{eq:comp})}\\
+            &= c + K(\first{i}{\bar{\Omega}})
+    \end{align*}
+
+    $\iff K(\first{i}{\bar{\Omega}}) > i - c$, que es la definición de
+    aleatoriedad de Chaitin.
+
+\end{proof}
+
+\subsection*{12.2}
+
+\textit{Para todo conjunto $X$ infinito y c.e pero no computable, $\sum_{x \in
+X} 2^{-|x|}$ es aleatorio.}
+
+\subsection*{12.3}
+
+\textit{El número $\Omega_0$ que resulta de anteponer mil 0s delante de $\Omega$ es aleatorio.}
+
+\subsection*{12.4}
+
+\textit{Demostrar que $\sum_{\text{palabra s}} 2^{K(s)}$ es computablemente
+aproximable desde abajo y Martin Löf aleatorio.}
 
 \section*{Ejercicio 13}
 
-\newpage
+\textit{Dar un test de Martin Löf que contenga a los números decimales cuya expansión decimal no contiene el 7.}
 
 \end{document}
