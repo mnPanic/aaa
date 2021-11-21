@@ -1,0 +1,205 @@
+\documentclass{article}
+
+% Matemática
+\usepackage{amsmath}    % símbolos matemáticos
+\usepackage{amsthm}     % teoremas
+\usepackage{amsfonts}   % \mathbb
+\usepackage{amssymb}    % \therefore
+\usepackage{bm}         % bold math (https://ctan.org/pkg/bm)
+\usepackage{abraces}    % \aoverbrace http://ctan.org/pkg/abraces
+% https://tex.stackexchange.com/questions/132526/overbrace-and-underbrace-with-square-bracket
+
+\usepackage[makeroom]{cancel}   % \cancel
+
+% Figuras
+\usepackage{tikz}                   % gráficos
+\usepackage{float}                  % [H]
+\usepackage{xcolor}                 % colores https://es.overleaf.com/learn/latex/Using_colours_in_LaTeX
+
+% Formateo
+\usepackage{framed}     % env leftbar
+
+% Texto
+\usepackage[shortlabels]{enumitem}  % enumerate con letras
+
+% Referencias
+\usepackage[colorlinks=true]{hyperref}
+
+% Código
+% https://tex.stackexchange.com/questions/51295/algpseudocode-without-end-block-text
+\usepackage[noend]{algpseudocode} % env algorithmic,
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+
+
+% Diagramas
+\usepackage{tikz}
+\usetikzlibrary{automata, arrows, positioning}
+
+\tikzset{
+    ->, % makes the edges directed
+    >=stealth', % makes the arrow heads bold
+    node distance=3cm, % specifies the minimum distance between two nodes. Change if necessary.
+    every state/.style={thick}, % sets the properties for each 'state' node
+    initial text=$ $, % sets the text that appears on the start arrow
+}
+
+
+\usepackage{mathtools}
+% Macros para símbolos
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\newcommand{\BigO}{\mathcal{O}}
+
+% Teoremas, corolarios, etc.
+% https://www.overleaf.com/learn/latex/theorems_and_proofs
+\theoremstyle{definition} % Para que no salga en italicas
+
+\newtheorem{theorem}{Teorema}
+\newtheorem*{theorem*}{Teorema}
+
+\newtheorem{lemma}{Lema}
+\newtheorem*{lemma*}{Lema}
+
+\newtheorem{proposition}{Prop.}
+\newtheorem*{proposition*}{Prop}
+
+\newtheorem{corollary}{Corolario}
+\newtheorem*{corollary*}{Corolario}
+
+\newtheorem{definition}{Def.}
+\newtheorem*{definition*}{Def}
+
+\newtheorem*{observation*}{Obs}
+
+% Comandos de AAA
+\newcommand{\select}{\upharpoonright}
+\newcommand{\progends}{\downarrow}
+\newcommand{\firstn}[1]{#1[1 \dots n]}
+
+% Entornos
+\newenvironment{nota}[1]
+    {\begin{leftbar}\textbf{#1}}
+    {\end{leftbar}}
+
+\author{Manuel Panichelli}
+\title{Algoritmos, Azar y Autómatas\\Resolución Ejercicios 9 a 13 (aleatoriedad)}
+
+\begin{document}
+\maketitle
+
+\section*{Resultados previos}
+
+\newpage
+
+\section*{Ejercicio 9}
+
+\newpage
+
+\section*{Ejercicio 10}
+
+\textit{Dar un algoritmo que permite computar $\Omega$ con un oráculo para el problema de la detención.}
+
+Recuerdo la definición de $\Omega$, la suma de las potencias de 2 de las
+longitudes de todos los programas que terminan. Si U es una máquina de Turing
+universal,
+
+\[
+    \Omega = \sum_{U(p)\progends} 2 ^ {-|p|}
+\]
+
+Para computar $\Omega$ voy a dar una función que computa los primeros $n$
+dígitos, $\firstn{\Omega}$, y luego voy incrementando $n$ e imprimiendo los
+resultados.
+
+Sea $g$ una enumeración de todos los programas que terminan (se
+podría obtener computablemente mediante un método como \textit{dovetailing}),
+defino una aproximación de $\Omega$ hasta el m-ésimo programa,
+
+\[
+    \alpha_m = \sum_{j = 1}^{m} 2 ^ {-|g(j)|}
+\]
+
+Lo que me gustaría saber es para qué $m$ $\alpha_m$ tiene los primeros $n$
+dígitos \textit{definitivos}, es decir $\firstn{\Omega} = \firstn{\alpha_m}$.
+Para ello, debo verificar que
+
+\[
+    \firstn{\alpha_m} \overset{?}{=} \firstn{\alpha_m'}\ \forall m' > m
+\]
+
+Es decir, no importa que sigamos considerando más programas, los primeros $n$
+dígitos no van a cambiar. Como no es algo finito, no lo podemos computar con un
+algoritmo, pero acá es donde nos salva el oráculo de Halt. La siguiente función
+logra lo buscado
+
+\begin{algorithmic}
+    \Function{Q}{m, n}
+        \State $m' \gets m + 1$
+        \While{true}
+            \If{$\firstn{\alpha_m} \neq \firstn{\alpha_m'}$}
+            \State \textbf{break}
+            \EndIf
+            \State $m' \gets m' + 1$
+        \EndWhile
+    \EndFunction
+\end{algorithmic}
+
+\begin{itemize}
+    \item Si \texttt{OraculoHalt(Q(m, n)) = true} (es decir, Q termina) es
+    porque existía $m$ tal que cambiaban los primeros $n$ dígitos, y por lo
+    tanto no eran definitivos.
+
+    \item Si \texttt{OraculoHalt(Q(m, n)) = false} (es decir, Q \textit{no}
+    termina), entonces no existe $m$ tal que cambien los primeros $n$ dígitos, y
+    por lo tanto son definitivos.
+\end{itemize}
+
+El algoritmo final es el siguiente, donde la función sin argumentos Print
+$\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
+
+\begin{algorithmic}
+    \Function{Print $\Omega$}{}
+
+        \For{$n = 1, 2 \dots$}
+            \State \textbf{print} \Call{$\Omega$}{n}
+        \EndFor
+
+    \EndFunction
+
+    \Function{$\Omega$}{n}
+
+    \For{$m = 1, 2 \dots$}
+        \If{$\neg$ OraculoHalt(\Call{Q}{m, n})}
+            \State \textbf{return} $\firstn{\alpha_m}$
+        \EndIf
+    \EndFor
+
+\EndFunction
+
+    \Function{Q}{m, n}
+        \State $m' \gets m + 1$
+        \While{true}
+            \If{$\firstn{\alpha_m} \neq \firstn{\alpha_m'}$}
+            \State \textbf{break}
+            \EndIf
+            \State $m' \gets m' + 1$
+        \EndWhile
+    \EndFunction
+\end{algorithmic}
+
+\newpage
+
+\section*{Ejercicio 11}
+
+\newpage
+\section*{Ejercicio 12}
+
+\newpage
+
+\section*{Ejercicio 13}
+
+\newpage
+
+\end{document}
