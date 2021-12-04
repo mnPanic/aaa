@@ -295,4 +295,41 @@ aproximable desde abajo y Martin Löf aleatorio.}
 
 \textit{Dar un test de Martin Löf que contenga a los números decimales cuya expansión decimal no contiene el 7.}
 
+\begin{proof}
+
+    \begin{lemma}[Contrarecíproco del ej. 9]\label{lemma:9-contrarrep}
+        
+        \begin{equation*}
+            \aunderbrace[l1r]{
+                \left(
+                    \begin{gathered}
+                        \text{$x$ es Martin-Löf} \\
+                        \text{aleatorio}
+                    \end{gathered}
+                    \Rightarrow
+                    x \text{ es normal.}
+                \right)
+            }_{\text{Ejercicio 9}}
+            \implies
+            \left(
+                x \text{ no es normal.}
+                \Rightarrow
+                \begin{gathered}
+                    \text{$x$ no es} \\
+                    \text{Martin-Löf}\\
+                    \text{aleatorio}
+                \end{gathered}
+            \right)
+        \end{equation*}
+        
+    \end{lemma}
+
+    Sea $x$ un número cuya expansión decimal no contiene el 7. Como la
+    frecuencia de todos los dígitos no es la misma, no es normal. Por lo tanto,
+    por el Lema \ref{lemma:9-contrarrep} tampoco es Martin-Löf aleatorio y por
+    definición existirá un test en el que esté contenido.
+\end{proof}
+
+\textit{Perdón Vero por resolverlo de esta manera, pero ya me estaba extendiendo mucho con el plazo de entrega!}
+
 \end{document}
