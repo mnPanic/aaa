@@ -81,6 +81,8 @@
 \newcommand{\progends}{\downarrow}
 \newcommand{\firstn}[1]{\first{n}{#1}}
 \newcommand{\first}[2]{#2[1 \dots #1]}
+\newcommand{\measure}[1]{\mu(#1)}
+\newcommand{\sucML}{(V_i)_{i > 0}}
 
 % Entornos
 \newenvironment{nota}[1]
@@ -94,6 +96,29 @@
 \maketitle
 
 \section*{Resultados previos}
+
+\begin{definition}[Abiertos básicos]
+    $B_s$ es el conjunto de palabras infinitas que comienzan por $s$.
+
+    \[B_s = \{ s \alpha \mid \alpha \in \{0, 1\}^* \}\]
+
+\begin{proposition}[Medida de un abierto]
+    $\measure{B_s} = 2^{-|s|}$
+\end{proposition}
+\end{definition}
+
+\begin{definition}[Test de Martin-Löf]
+    Una sucesión $\sucML$ es un test de Martin-Löf si
+
+    \begin{itemize}
+        \item $V_i = \bigcup_{s \in S_i} B_s$ con $S_1 \subseteq {0, 1}^*$
+        computable
+        \item $\measure{V_i} \leq 2^{-i}$ \textit{(se va achicando)}
+    \end{itemize}
+
+    Si existe un test tal que $x \in \bigcap_{i \geq 1} V_i$, entonces $x$ no es
+    aleatorio.
+\end{definition}
 
 TODO: programa elegante, complejidad de kormogolov, definiciones de martin lof y
 etc.
@@ -182,7 +207,6 @@ $\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
     \EndFor
 
 \EndFunction
-
     \Function{Q}{m, n}
         \State $m' \gets m + 1$
         \While{true}
@@ -193,8 +217,6 @@ $\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
         \EndWhile
     \EndFunction
 \end{algorithmic}
-
-\newpage
 
 \section*{Ejercicio 11}
 
@@ -279,8 +301,138 @@ $\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
 
 \subsection*{12.2}
 
-\textit{Para todo conjunto $X$ infinito y c.e pero no computable, $\sum_{x \in
-X} 2^{-|x|}$ es aleatorio.}
+\textit{Para todo conjunto $X$ infinito y c.e pero no computable, $\alpha =
+\sum_{x \in X} 2^{-x}$ no es aleatorio.}
+
+\begin{definition}[c.e]
+    $X$ es c.e (computablemente enumerable) si $\exists f: \mathbb{N} \to
+    \mathbb{N}$ tal que $Im(f) = X$. Es decir, $f$ enumera los elementos de $X$
+    en algún orden que no se puede elegir.
+    \begin{example}
+        $X = \{2, 5\}$. Puedo tomar $f(1) = 5, f(2) = 2$ o $f'(1) = 2, f'(2) = 5$.
+    \end{example}
+    \begin{example}
+        $X = \{ n \mid n \text{ es impar} \} = \{1, 3, 5, 7, \dots \}$
+
+        Puedo enumerarlos en cualquier orden,
+        
+        $$f(1) = 7, f(2) = 17, f(3) = 37\dots,$$
+        
+        y la función característica es
+
+        $$X = 101010 \dots$$
+    \end{example}
+\end{definition}
+\begin{definition}[Función característica]
+    Puedo codificar un conjunto con una sucesión de bits correspondientes a su
+    función característica.
+
+    \[
+        X = b_1 b_2 b_3 b_4 b_5 \dots
+    \]
+
+    con
+
+    \[
+        b_i =
+            \begin{cases}
+                1 & \text{si } i \in X \\
+                0 & \text{sino.}
+            \end{cases}
+    \]
+
+    Por ejemplo
+    \[
+        X = \{1, 4, 10\}
+        =
+        \underset{1}{1}\
+        \underset{2}{0}\
+        \underset{3}{0}\
+        \underset{4}{1}\
+        \underset{5}{0}\
+        \underset{6}{0}\
+        \underset{7}{0}\
+        \underset{8}{0}\
+        \underset{9}{0}\
+        \underset{10}{1}
+    \]
+\end{definition}
+\begin{observation*}
+    La expansión en base 2 de $\alpha$ es la codificación en bits de $X$. Por ejemplo, con $X = \{1, 4,
+    10\}$,
+
+    $$\alpha = 2^{-1} + 2^{-4} + 2^{-10} = 0.5634765625 = (0.1001000001)_2.$$
+\end{observation*}
+
+\begin{proof}
+    Para ver que $\alpha$ no es aleatorio voy a dar un test de Martin-Löf
+    $(V_i)_{i > 0}$ tal que $\alpha \in \bigcap_{i > 0} V_i$.
+
+    \begin{itemize}
+        \item Supongo que $f(1) = 3$, sabemos que $X = b_1\ b_2\ 1\ b_3\ b_4\ b_5
+        \dots$, y defino $V_1$ tal que los primeros 3 dígitos de la expansión de
+        $\alpha$ aparezcan.
+
+        \[
+            V_1 = \{ 
+                B_{b_1 b_2 1}
+                \mid b_1, b_2 \in \{0, 1\}
+            \},
+        \]
+
+        con $B_s$ las palabras infinitas que comienzan por $s$. Y su medida es
+        correcta,
+
+        \[
+            \measure{V_1}
+                = 2^2 \times \measure{B_{111}}
+                = 2^2 \times 2^{-3} = 1/2
+                \leq 2^{-1}
+        \]
+
+        \item Supongo que $f(2) = 10$, sabemos que 
+        $X = b_1\ b_2\ 1\ b_3\ \dots b_9\ 1\ b_{11}\ \dots$. Defino
+
+        \[
+            V_2 = \{ 
+                B_{b_1 \dots b_{10}}
+                \mid b_3 = b_{10} = 1 \text{ y los demás } b_j \in \{0, 1\}
+            \},
+        \]
+
+        Su medida también es correcta,
+
+        \[
+            \measure{V_2}
+                = 2^{10 - 2} \times \measure{B_{s \text{ con } |s| = 10}}
+                = 2^{10 - 2} \times 2^{-10} = 2^{-2}
+                \leq 2^{-2}
+        \]
+    \end{itemize}
+
+    En general, si $f(i) = x$
+
+    \[
+        V_i = \{ 
+            B_{b_1 \dots b_{x}}
+            \mid b_{f(k)} = 1 \text{ con } k \leq i \text{ y el resto } b_j \in \{0, 1\}
+        \},
+    \]
+
+    luego
+
+    \begin{align*}
+        \measure{V_i}
+            &= 2^{x - i} \times \measure{B_{s \text{ con } |s| = x}} \\
+            &= 2^{x - i} \times 2^{-x} \\
+            &= 2^{\cancel{x} - i - \cancel{x}} \\
+            &= 2^{-i} \leq 2^{-i}
+    \end{align*}
+
+    y se que $\alpha \in \bigcap_{i \geq 1} V_i$ pues cada $V_i$ va refinando
+    segmentos iniciales más grandes de $\alpha$. Por lo tanto, como existe un
+    test de Martin-Löf que contiene a $\alpha$, $\alpha$ no es aleatorio.
+\end{proof}
 
 \subsection*{12.3}
 
