@@ -81,9 +81,14 @@
 \newcommand{\progends}{\downarrow}
 \newcommand{\firstn}[1]{\first{n}{#1}}
 \newcommand{\first}[2]{#2[1 \dots #1]}
-\newcommand{\measure}[1]{\mu(#1)}
+\newcommand{\measure}[1]{\mu\left(#1\right)}
+\newcommand{\size}[1]{\left|#1\right|}
 \newcommand{\sucML}{(V_i)_{i > 0}}
 \newcommand{\ZOalphabet}{\{0, 1\}^*}
+\newcommand{\ML}{Martin-Löf }
+\newcommand{\occurrencesOf}[2]{|#2|_#1}
+\newcommand{\Bad}[4]{\text{Bad}(#1, #2, #3, #4)}
+
 
 % Entornos
 \newenvironment{nota}[1]
@@ -117,7 +122,7 @@
 \end{proposition}
 \end{definition}
 
-\begin{definition}[Test de Martin-Löf]
+\begin{definition}[Test de Martin-Löf]\label{def:martin-lof}
     Una sucesión $\sucML$ es un test de Martin-Löf si
 
     \begin{itemize}
@@ -130,12 +135,206 @@
     aleatorio.
 \end{definition}
 
-TODO: programa elegante, complejidad de kormogolov, definiciones de martin lof y
-etc.
-
 \section*{Ejercicio 9}
 
-\textit{Demostrar que los números Martin-Löf aleatorios son normales.}
+\textit{Demostrar que los números \ML aleatorios son normales.}
+
+Voy a demostrarlo por el contrarecíproco:
+
+\[
+    x \text{ no es normal } \Rightarrow x \text{ no es \ML aleatorio }
+\]
+
+Primero listo algunas definiciones y propiedades que voy a necesitar solo para
+este ejercicio,
+
+\begin{definition}[Simple normalidad en una base]\label{def:simple-norm}
+    $x \in A^*$ es simplemente normal en base $b$ si para todo $w \in A^\ell$
+
+    \[
+        \lim_{n\to\infty}
+            \frac{\occurrencesOf{w}{\first{n}{x}|}}{n}
+            = \frac{1}{b^\ell}
+    \]
+\end{definition}
+
+\begin{definition}[Malas palabras]\label{def:bad}
+    El conjunto de malas palabras para un alfabeto $A$ es
+
+    \[
+        \Bad{A}{k}{w}{\varepsilon} = \left\{
+            v \in A^k : \left|
+                \occurrencesOf{w}{v} - \frac{k}{b^{|w|}}
+            \right| > \varepsilon k
+        \right\}
+    \]
+\end{definition}
+
+\begin{proposition}[Suma geométrica infinita]\label{prop:geom-inf-sum}
+    Sea $-1 < r < 1$, $r \neq 0$,
+
+    \[
+        \sum_{k=0}^{\infty} ar^k
+        = \frac{a}{1 - r}
+    \]
+\end{proposition}
+
+\begin{proof}[Dem]
+    Sea $x$ no normal. Para ver que no es \ML aleatorio tenemos que dar un
+    \nameref{def:martin-lof} $\sucML$ tal que $x \in \bigcap_{i \geq 1} V_i$.
+
+    Como $x$ no es normal, existe una base $b$ tal que $x$ no es normal en esa
+    base.
+
+    \begin{align*}
+        &\Rightarrow
+            \exists\ w \text{ palabra tal que }
+            \lim_{n\to\infty}
+                \frac{\occurrencesOf{w}{\first{n}{x}}}{n}
+            \neq b^{-|w|}\\
+        &\Rightarrow
+            \exists\ w, \delta, k_0 \text{ tal que }
+                \forall k > k_0,\
+                    |\occurrencesOf{w}{\first{k}{x}} - b^{-|w|}| > \delta\\
+        &\Rightarrow
+            \exists\ w, \delta, k_0 \text{ tal que }
+            \forall k > k_0,\
+                \first{k}{x} \in \Bad{A}{k}{w}{\delta}
+    \end{align*}
+
+    y observo que con $\delta$ fijo, $\forall \varepsilon \leq \delta$
+
+    \[
+        \Bad{A}{k}{w}{\delta} \subseteq \Bad{A}{k}{w}{\varepsilon}
+    \]
+
+    ya que si con una cota mas laxa una palabra resulta mala, con una condición
+    más estricta también lo será.
+
+    Definimos el conjunto $S(i)$
+
+    \begin{align*}
+        S(i)
+            &= \bigcup_{k > f(i)} 
+                \bigcup_{u : |u| < g(i)}
+                    \Bad{A}{k}{u}{\varepsilon(k)}\\
+            &=
+                \begin{aligned}[t]
+                &\text{palabras de longitud} > f(i)
+                \text{ con mala frecuencia}\\
+                &\text{con respecto a palabras de longitud} < g(i),
+                \end{aligned}
+    \end{align*}
+
+    con $f, g$ crecientes y $\varepsilon$ decreciente. Definimos también el
+    conjunto $V_i$ a partir de él,
+
+    \[
+        V_i = \bigcup_{s \in S(i)} B_s
+    \]
+
+    que es casi el test pero podría suceder que $x$ no pertenezca. Para
+    solucionarlo, vamos a \textit{shiftearlo}. Como $x$ es mala, sabemos que
+    $\first{k}{x} \in \Bad{A}{k}{w}{\delta}$. Luego, como $f$ y $g$ son
+    crecientes, existe un $i_0$ a partir del cual
+    \begin{itemize}
+        \item $f(i_0) > k_0$ (estamos considerando palabras lo suficientemente
+        grandes), y
+        \item $g(i_0) > |w|$ (estamos considerando longitudes lo suficientemente
+        grandes).
+    \end{itemize}
+
+    y por lo tanto, $\forall i > i_0$, $x \in V_{i+i_0}$. Definimos entonces el test a partir de ese $i_0$,
+
+    \[
+        W_i = V_{i_0 + i}.
+    \]
+
+    Tiene que cumplir dos cosas,
+
+    \begin{enumerate}
+        \item $x \in \bigcap_{i > 0} W_i$.
+        \item $\measure{W_i} = \measure{V_i} \leq 2^{-i}$
+    \end{enumerate}
+
+    Como sabemos que 1. se cumple por construcción de $W_i$ y elección de $i_0$,
+    solo nos queda elegir $f, g$ y $\varepsilon$ tales que se cumpla 2. Veamos
+    la medida de cada conjunto,
+
+    \begin{align*}
+        \measure{W_i}
+            &= \measure{V_i}\\
+            &= \measure{\bigcup_{s\in S(i)} B_s}\\
+            &\leq \sum_{s \in S(i)} \measure{B_s}\\
+            &= \sum_{s \in S(i)} 2^{-|s|}\\
+            &< \sum_{s \in S(i)} 2^{-f(i)}\\
+            &=\size{S(i)} 2^{-f(i)} < 2^{-i} \iff \size{S(i)} < 2^{f(i) - i}\\
+    \end{align*}
+
+    Para $k$ suficientemente grande,
+
+    \begin{equation}\label{eq:9-bad}
+        \size{\Bad{A}{k}{w}{\varepsilon(k)}} < \varepsilon(k) b^k
+    \end{equation}
+
+    Y tengo que
+
+    \begin{align*}
+        \size{S(i)}
+            &= \size{
+                \bigcup_{k > f(i)} 
+                \bigcup_{u : |u| < g(i)}
+                \Bad{A}{k}{u}{\varepsilon(k)}
+            }\\
+            &\leq 
+                \sum_{k > f(i)} 
+                \sum_{u : |u| < g(i)}
+                \size{\Bad{A}{k}{u}{\varepsilon(k)}}\\
+            &<
+                \sum_{k > f(i)} 
+                \sum_{u : |u| < g(i)}
+                    \varepsilon(k) 2^k
+            &&(\text{\ref{eq:9-bad}})\\
+            &<
+                \sum_{k > f(i)} 
+                    g(i)
+                    \varepsilon(k) 2^k\\
+            &< \sum_{k > 0} 
+                    g(i)
+                    \varepsilon(k) 2^k\\
+            &= \sum_{k > 0} 
+                g(i)
+                (1/2)^k \cancel{2^{-k}} \cancel{2^k}\\
+            &&(\varepsilon(k) = (1/2)^k 2^{-k})\\
+            &= \frac
+                {g(i)}
+                {1 - 1/2}
+            = 2g(i)
+            &&\text{(Prop. \ref{prop:geom-inf-sum})}
+    \end{align*}
+
+    Juntando, quiero encontrar $g$ y $f$ tales que $2g(i) < 2^{f(i)- i}$.
+    Tomando $f(i) = 2i$ y $g(i) = i/2$, tengo que
+
+    \begin{align*}
+        2g(i) < 2^{f(i)- i}
+            &\iff 2 i/2 < 2^{2i - i} \\
+            &\iff i < 2^{i},
+    \end{align*}
+
+    lo cual es cierto. Por lo tanto, estas elecciones de funciones hacen que el
+    test $W_i$ cumpla con la restricción 2,
+    
+    \begin{itemize}
+        \item $f(n) = 2n$ que es creciente
+        \item $g(n) = n/2$ que es creciente
+        \item $\varepsilon(n) = (1/2)^n 2^{-n} = (1/4)^n$ que es decreciente.
+    \end{itemize}
+
+    Finalmente, como existe un test de \ML que contiene a $x$, no es aleatoria.
+    Por lo tanto, como acabo de demostrar que cuando $x$ no es normal tampoco es
+    aleatorio, concluyo que los números \ML aleatorios son normales.
+\end{proof}
 
 \section*{Ejercicio 10}
 
@@ -632,8 +831,6 @@ computablemente aproximable desde abajo y aleatorio.}
     
     $\therefore \alpha$ es aleatorio.
 \end{proof}
-
-
 
 \section*{Ejercicio 13}
 
