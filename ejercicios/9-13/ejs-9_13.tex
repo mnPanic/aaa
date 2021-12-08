@@ -83,6 +83,7 @@
 \newcommand{\first}[2]{#2[1 \dots #1]}
 \newcommand{\measure}[1]{\mu(#1)}
 \newcommand{\sucML}{(V_i)_{i > 0}}
+\newcommand{\ZOalphabet}{\{0, 1\}^*}
 
 % Entornos
 \newenvironment{nota}[1]
@@ -96,6 +97,15 @@
 \maketitle
 
 \section*{Resultados previos}
+
+\begin{definition}[Programa elegante]\label{def:prog-elegante}
+    Un programa es elegante si es el más corto que computa una secuencia. Es
+    decir, $p \in \ZOalphabet$ es un programa elegante si existe $s \in
+    \ZOalphabet$, $U(p) = s$ y para todo otro programa $p \in \ZOalphabet$, si
+    $U(p') = s$ entonces $|p| \leq |p'|$.
+
+    Llamamos $s^*$ al programa elegante que computa $s$, $U(s^*) = s$ y $K(s) = |s^*|$.
+\end{definition}
 
 \begin{definition}[Abiertos básicos]
     $B_s$ es el conjunto de palabras infinitas que comienzan por $s$.
@@ -233,7 +243,7 @@ $\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
     todos 1s, $x \oplus 1s = \bar{x}$.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}[Dem]
     Sea $g: \mathbb{N} \to \Sigma^*$ una enumeración de los programas que se
     detienen, $\alpha_m = \sum_{j = 1}^{m} 2 ^ {-|g(j)|}$ una aproximación de
     $\Omega$ de $m$ pasos. Defino el programa $p$,
@@ -364,7 +374,7 @@ $\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
     $$\alpha = 2^{-1} + 2^{-4} + 2^{-10} = 0.5634765625 = (0.1001000001)_2.$$
 \end{observation*}
 
-\begin{proof}
+\begin{proof}[Dem]
     Para ver que $\alpha$ no es aleatorio voy a dar un test de Martin-Löf
     $(V_i)_{i > 0}$ tal que $\alpha \in \bigcap_{i > 0} V_i$.
 
@@ -452,7 +462,7 @@ $\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
     trivialmente.
 \end{lemma}
 
-\begin{proof}
+\begin{proof}[Dem]
     Sea $g: \mathbb{N} \to \Sigma^*$ una enumeración de los programas que se
     detienen, $\alpha_m = \sum_{j = 1}^{m} 2 ^ {-|g(j)|}$ una aproximación de
     $\Omega$ de $m$ pasos. Defino el programa $p$,
@@ -528,14 +538,108 @@ c$, llegamos a
 
 \subsection*{12.4}
 
-\textit{Demostrar que $\sum_{\text{palabra s}} 2^{K(s)}$ es computablemente
-aproximable desde abajo y Martin Löf aleatorio.}
+\textit{Demostrar que $\alpha = \sum_{\text{palabra s}} 2^{-K(s)}$ es
+computablemente aproximable desde abajo y aleatorio.}
+
+\begin{proposition*}[$\alpha$ es aproximable desde abajo]
+    Primero, observo que $\alpha$ es la probabilidad de que un programa sea
+    elegante. Defino el conjunto
+
+    \[
+        S(t) = \left\{
+            \begin{gathered}
+            \text{programas que terminan en menos de } t \\
+            \text{ pasos y son candidatos a ser elegantes}
+            \end{gathered}
+        \right\}.
+    \]
+
+    Si un programa $p$ está en $S(t)$ y no está en $S(t + 1)$, es porque hay
+    otro programa $p'$ tal que $|p| < |p'|$ (que tarda más pasos en terminar,
+    pero es más corto). Con esto puedo definir
+
+    \[
+        \alpha_t = \sum_{s \in S(t)} 2^{-|s|}.
+    \]
+
+    Como en cada paso $t$ los programas se hacen más cortos, $\alpha_t <
+    \alpha_{t+1} < \alpha$ (pues son potencias negativas). Por lo tanto, alpha
+    se puede aproximar computacionalmente de forma \textit{estrictamente}
+    creciente desde abajo.
+\end{proposition*}
+
+\begin{proof}[Dem](12.4)
+    Sea $\alpha_t$ una aproximación por abajo estrictamente creciente de $t$
+    pasos de $\alpha$. Defino el programa $p$,
+
+    \[
+        p = b_1 b_2 \dots b_c \first{i}{\alpha}^*,
+    \]
+
+    donde $\first{i}{\alpha}^*$ es una subrutina que contiene el programa
+    elegante (el más corto) que computa $\first{i}{\alpha}$ y $b_1 b_2
+    \dots b_c$ realiza los siguientes pasos,
+
+    \begin{enumerate}
+        \item Computa $\first{i}{\alpha}$ en base a
+        $\first{i}{\alpha}^*$
+        \item $t = 1$. Mientras ($\alpha_t \leq \first{i}{\alpha}$), $t = t + 1$.
+        \item Sea $O = \{ U(s) \mid s \in S(t) \}$ los outputs de los
+        programas candidatos a elegantes que aportan a la aproximación de
+        $\alpha$
+        \item Sea $s$ la cadena más chica lexicográficamente tal que $s \notin O$.
+        \item Return $s$.
+    \end{enumerate}
+
+    Veamos que $|s^*| > i$, la longitud del programa elegante que computa $s$
+    (su complejidad) es más chica que $i$. Para demostrarlo supongamos lo
+    contrario, que $|s^*| \leq i$
+
+    \begin{align*}
+        \alpha 
+        &> 2^{-|s^*|} + \alpha_t
+            &&\text{($\alpha$ tiene infinitos aportes)}\\
+        &> 2^{-|s^*|} + \first{i}{\alpha}
+            &&\text{(porque $\alpha_t > \first{i}{\alpha}$)}\\
+        &\geq 2^{-i} + \first{i}{\alpha}
+            &&\text{(sup. $|s^*| \leq i$)}\\
+        &\geq \alpha
+            &&\text{($\first{i}{\alpha}$ contiene exactamente los primeros $i$ bits de $\alpha$)}
+    \end{align*}
+
+    Y llegamos a $\alpha > \alpha$ que es un absurdo. Por lo tanto, $|s^*| > i$.
+    
+    Por otro lado, como $p$ es un programa (no muy bueno) que computa $s$, se que
+
+    \begin{equation}\label{eq:comp}
+         K(s) \leq c + |\first{i}{\alpha}^*|
+    \end{equation}
+
+    donde $c = |b_1 \dots b_c|$.
+
+    Juntando,
+
+    \begin{align*}
+        i
+            &< |s^*|\\
+            &= K(s)\\
+            &\leq c + |\first{i}{\alpha}^*| &&\text{por (\ref{eq:comp})}\\
+            &= c + K(\first{i}{\alpha})
+    \end{align*}
+
+    $\iff K(\first{i}{\alpha}) > i - c$, que es la definición de
+    aleatoriedad de Chaitin.
+    
+    $\therefore \alpha$ es aleatorio.
+\end{proof}
+
+
 
 \section*{Ejercicio 13}
 
 \textit{Dar un test de Martin Löf que contenga a los números decimales cuya expansión decimal no contiene el 7.}
 
-\begin{proof}
+\begin{proof}[Dem]
 
     \begin{lemma}[Contrarecíproco del ej. 9]\label{lemma:9-contrarrep}
         
