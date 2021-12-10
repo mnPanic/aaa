@@ -1,5 +1,8 @@
 \documentclass{article}
 
+% https://es.overleaf.com/learn/latex/Page_size_and_margins
+\usepackage[a4paper]{geometry}
+
 % Matemática
 \usepackage{amsmath}    % símbolos matemáticos
 \usepackage{amsthm}     % teoremas
@@ -115,10 +118,10 @@
 \begin{definition}[Abiertos básicos]
     $B_s$ es el conjunto de palabras infinitas que comienzan por $s$.
 
-    \[B_s = \{ s \alpha \mid \alpha \in \{0, 1\}^* \}\]
+    \[B_s = \{ s \alpha \mid \alpha \in \{0, 1\}^* \}.\]
 
 \begin{proposition}[Medida de un abierto]
-    $\measure{B_s} = 2^{-|s|}$
+    $\measure{B_s} = 2^{-|s|}.$
 \end{proposition}
 \end{definition}
 
@@ -135,6 +138,8 @@
     aleatorio.
 \end{definition}
 
+\newpage
+
 \section*{Ejercicio 9}
 
 \textit{Demostrar que los números \ML aleatorios son normales.}
@@ -142,7 +147,7 @@
 Voy a demostrarlo por el contrarecíproco:
 
 \[
-    x \text{ no es normal } \Rightarrow x \text{ no es \ML aleatorio }
+    x \text{ no es normal } \Rightarrow x \text{ no es \ML aleatorio. }
 \]
 
 Primero listo algunas definiciones y propiedades que voy a necesitar solo para
@@ -153,8 +158,8 @@ este ejercicio,
 
     \[
         \lim_{n\to\infty}
-            \frac{\occurrencesOf{w}{\first{n}{x}|}}{n}
-            = \frac{1}{b^\ell}
+            \frac{\occurrencesOf{w}{\first{n}{x}}}{n}
+            = \frac{1}{b^\ell}.
     \]
 \end{definition}
 
@@ -166,16 +171,23 @@ este ejercicio,
             v \in A^k : \left|
                 \occurrencesOf{w}{v} - \frac{k}{b^{|w|}}
             \right| > \varepsilon k
-        \right\}
+        \right\}.
     \]
 \end{definition}
+
+\begin{proposition}[Cota de cardinalidad de Bad]\label{prop:bad}
+    Para $k$ suficientemente grande,
+    \[
+        \size{\Bad{A}{k}{w}{\varepsilon}} < \varepsilon b^k.
+    \]
+\end{proposition}
 
 \begin{proposition}[Suma geométrica infinita]\label{prop:geom-inf-sum}
     Sea $-1 < r < 1$, $r \neq 0$,
 
     \[
         \sum_{k=0}^{\infty} ar^k
-        = \frac{a}{1 - r}
+        = \frac{a}{1 - r}.
     \]
 \end{proposition}
 
@@ -183,7 +195,7 @@ este ejercicio,
     Sea $x$ no normal. Para ver que no es \ML aleatorio tenemos que dar un
     \nameref{def:martin-lof} $\sucML$ tal que $x \in \bigcap_{i \geq 1} V_i$.
 
-    Como $x$ no es normal, existe una base $b$ tal que $x$ no es normal en esa
+    Como no es normal, existe una base $b$ tal que $x$ no es normal en esa
     base.
 
     \begin{align*}
@@ -191,7 +203,8 @@ este ejercicio,
             \exists\ w \text{ palabra tal que }
             \lim_{n\to\infty}
                 \frac{\occurrencesOf{w}{\first{n}{x}}}{n}
-            \neq b^{-|w|}\\
+            \neq b^{-|w|}
+        &&\text{(Def \ref{def:simple-norm})}\\
         &\Rightarrow
             \exists\ w, \delta, k_0 \text{ tal que }
                 \forall k > k_0,\
@@ -199,7 +212,8 @@ este ejercicio,
         &\Rightarrow
             \exists\ w, \delta, k_0 \text{ tal que }
             \forall k > k_0,\
-                \first{k}{x} \in \Bad{A}{k}{w}{\delta}
+                \first{k}{x} \in \Bad{A}{k}{w}{\delta},
+        &&\text{(Def \ref{def:bad})}
     \end{align*}
 
     y observo que con $\delta$ fijo, $\forall \varepsilon \leq \delta$
@@ -253,13 +267,13 @@ este ejercicio,
     Tiene que cumplir dos cosas,
 
     \begin{enumerate}
-        \item $x \in \bigcap_{i > 0} W_i$.
-        \item $\measure{W_i} = \measure{V_i} \leq 2^{-i}$
+        \item $x \in \bigcap_{i > 0} W_i$ y
+        \item $\measure{W_i} = \measure{V_i} \leq 2^{-i}$.
     \end{enumerate}
 
-    Como sabemos que 1. se cumple por construcción de $W_i$ y elección de $i_0$,
-    solo nos queda elegir $f, g$ y $\varepsilon$ tales que se cumpla 2. Veamos
-    la medida de cada conjunto,
+    Como sabemos que 1. se cumple por construcción de $W_i$ y la elección de
+    $i_0$, nos queda elegir $f, g$ y $\varepsilon$ de forma tal que se cumpla 2.
+    Veamos la medida de cada conjunto,
 
     \begin{align*}
         \measure{W_i}
@@ -268,16 +282,10 @@ este ejercicio,
             &\leq \sum_{s \in S(i)} \measure{B_s}\\
             &= \sum_{s \in S(i)} 2^{-|s|}\\
             &< \sum_{s \in S(i)} 2^{-f(i)}\\
-            &=\size{S(i)} 2^{-f(i)} < 2^{-i} \iff \size{S(i)} < 2^{f(i) - i}\\
+            &=\size{S(i)} 2^{-f(i)} < 2^{-i} \iff \size{S(i)} < 2^{f(i) - i}.\\
     \end{align*}
 
-    Para $k$ suficientemente grande,
-
-    \begin{equation}\label{eq:9-bad}
-        \size{\Bad{A}{k}{w}{\varepsilon(k)}} < \varepsilon(k) b^k
-    \end{equation}
-
-    Y tengo que
+    Para $k$ suficientemente grande, se que se cumple la Prop \ref{prop:bad}
 
     \begin{align*}
         \size{S(i)}
@@ -294,7 +302,7 @@ este ejercicio,
                 \sum_{k > f(i)} 
                 \sum_{u : |u| < g(i)}
                     \varepsilon(k) 2^k
-            &&(\text{\ref{eq:9-bad}})\\
+            &&(\text{Prop. \ref{prop:bad}})\\
             &<
                 \sum_{k > f(i)} 
                     g(i)
@@ -304,8 +312,8 @@ este ejercicio,
                     \varepsilon(k) 2^k\\
             &= \sum_{k > 0} 
                 g(i)
-                (1/2)^k \cancel{2^{-k}} \cancel{2^k}\\
-            &&(\varepsilon(k) = (1/2)^k 2^{-k})\\
+                (1/2)^k \cancel{2^{-k}} \cancel{2^k}
+            &&(\text{Tomando } \varepsilon(k) = (1/2)^k 2^{-k})\\
             &= \frac
                 {g(i)}
                 {1 - 1/2}
@@ -314,7 +322,7 @@ este ejercicio,
     \end{align*}
 
     Juntando, quiero encontrar $g$ y $f$ tales que $2g(i) < 2^{f(i)- i}$.
-    Tomando $f(i) = 2i$ y $g(i) = i/2$, tengo que
+    Si tomo $f(i) = 2i$ y $g(i) = i/2$, tengo que
 
     \begin{align*}
         2g(i) < 2^{f(i)- i}
@@ -322,8 +330,8 @@ este ejercicio,
             &\iff i < 2^{i},
     \end{align*}
 
-    lo cual es cierto. Por lo tanto, estas elecciones de funciones hacen que el
-    test $W_i$ cumpla con la restricción 2,
+    lo cual es cierto. Por lo tanto, las siguientes elecciones de funciones
+    hacen que el test $W_i$ cumpla con la restricción 2,
     
     \begin{itemize}
         \item $f(n) = 2n$ que es creciente
@@ -335,6 +343,8 @@ este ejercicio,
     Por lo tanto, como acabo de demostrar que cuando $x$ no es normal tampoco es
     aleatorio, concluyo que los números \ML aleatorios son normales.
 \end{proof}
+
+\newpage 
 
 \section*{Ejercicio 10}
 
@@ -348,7 +358,7 @@ universal,
     \Omega = \sum_{U(p)\progends} 2 ^ {-|p|}
 \]
 
-Para computar $\Omega$ voy a dar una función que computa los primeros $n$
+para computar $\Omega$ voy a dar una función que computa los primeros $n$
 dígitos, $\firstn{\Omega}$, y luego voy incrementando $n$ e imprimiendo los
 resultados.
 
@@ -357,7 +367,7 @@ podría obtener computablemente mediante un método como \textit{dovetailing}),
 defino una aproximación de $\Omega$ hasta el m-ésimo programa,
 
 \[
-    \alpha_m = \sum_{j = 1}^{m} 2 ^ {-|g(j)|}
+    \alpha_m = \sum_{j = 1}^{m} 2 ^ {-|g(j)|}.
 \]
 
 Lo que me gustaría saber es para qué $m$ $\alpha_m$ tiene los primeros $n$
@@ -365,13 +375,15 @@ dígitos \textit{definitivos}, es decir $\firstn{\Omega} = \firstn{\alpha_m}$.
 Para ello, debo verificar que
 
 \[
-    \firstn{\alpha_m} \overset{?}{=} \firstn{\alpha_m'}\ \forall m' > m
+    \firstn{\alpha_m} \overset{?}{=} \firstn{\alpha_m'}\ \forall m' > m.
 \]
 
 Es decir, no importa que sigamos considerando más programas, los primeros $n$
 dígitos no van a cambiar. Como no es algo finito, no lo podemos computar con un
 algoritmo, pero acá es donde nos salva el oráculo de Halt. La siguiente función
-logra lo buscado
+logra lo buscado cuando se la pasamos al oráculo:
+
+\vspace{0.5cm}
 
 \begin{algorithmic}
     \Function{Q}{m, n}
@@ -395,8 +407,10 @@ logra lo buscado
     por lo tanto son definitivos.
 \end{itemize}
 
-El algoritmo final es el siguiente, donde la función sin argumentos Print
-$\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
+El algoritmo completo para computar $\Omega$ es el siguiente, donde la función
+sin argumentos Print $\Omega$ lo imprime de a segmentos iniciales.
+
+\vspace{0.5cm}
 
 \begin{algorithmic}
     \Function{Print $\Omega$}{}
@@ -457,12 +471,12 @@ $\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
 
     \begin{enumerate}
         \item[0.] Computamos $\first{i}{\bar{\Omega}}$ con
-        $\first{i}{\bar{\Omega}}^*$
+        $\first{i}{\bar{\Omega}}^*$.
         \item Computamos $\first{i}{\Omega}$ en base a
         $\first{i}{\bar{\Omega}}$ mediante un $\oplus$ con todos 1s.
         \item $m = 1$. Mientras ($\alpha_m \leq \first{i}{\Omega}$), $m = m + 1$.
         \item Sea $O = \{ U(g(j)) \mid 1 \leq j \leq m \}$ los outputs de los
-        programas que se detienen que aportan a la aproximación de $\Omega$
+        programas que se detienen que aportan a la aproximación de $\Omega$.
         \item Sea $s$ la cadena más chica lexicográficamente tal que $s \notin O$.
         \item Return $s$.
     \end{enumerate}
@@ -479,7 +493,7 @@ $\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
             &&\text{(porque $\alpha_m > \first{i}{\Omega}$)}\\
         &\geq 2^{-i} + \first{i}{\Omega}
             &&\text{(sup. $|s^*| \leq i$)}\\
-        &\geq \Omega
+        &\geq \Omega.
             &&\text{($\first{i}{\Omega}$ contiene exactamente los primeros $i$ bits de $\Omega$)}
     \end{align*}
 
@@ -487,7 +501,7 @@ $\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
     
     Por otro lado, como $p$ es un programa (no muy bueno) que computa $s$, se que
 
-    \begin{equation}\label{eq:comp}
+    \begin{equation}\label{eq:12-comp}
          K(s) \leq c + |\first{i}{\bar{\Omega}}^*|
     \end{equation}
 
@@ -499,12 +513,13 @@ $\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
         i
             &< |s^*|\\
             &= K(s)\\
-            &\leq c + |\first{i}{\bar{\Omega}}^*| &&\text{por (\ref{eq:comp})}\\
+            &\leq c + |\first{i}{\bar{\Omega}}^*|
+            &&\text{por (\ref{eq:12-comp})}\\
             &= c + K(\first{i}{\bar{\Omega}})
     \end{align*}
 
     $\iff K(\first{i}{\bar{\Omega}}) > i - c$, que es la definición de
-    aleatoriedad de Chaitin.
+    aleatoriedad de Chaitin. Concluyo que $\bar{\Omega}$ es aleatorio.
 
 \end{proof}
 
@@ -575,11 +590,18 @@ $\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
 
 \begin{proof}[Dem]
     Para ver que $\alpha$ no es aleatorio voy a dar un test de Martin-Löf
-    $(V_i)_{i > 0}$ tal que $\alpha \in \bigcap_{i > 0} V_i$.
+    $(V_i)_{i > 0}$ tal que $\alpha \in \bigcap_{i > 0} V_i$. Veamos con
+    ejemplos como serían los primeros dos conjuntos:
 
     \begin{itemize}
-        \item Supongo que $f(1) = 3$, sabemos que $X = b_1\ b_2\ 1\ b_3\ b_4\ b_5
-        \dots$, y defino $V_1$ tal que los primeros 3 dígitos de la expansión de
+        \item Supongo que $f(1) = 3$. Luego sabemos que $3 \in X$, y por lo
+        tanto aparecerá en la tercera posición en su codificación en bits,
+        
+        \[
+            X = b_1\ b_2\ 1\ b_3\ b_4\ b_5 \dots.
+        \]
+        
+        Defino $V_1$ tal que los primeros 3 dígitos de la expansión de
         $\alpha$ aparezcan.
 
         \[
@@ -600,13 +622,16 @@ $\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
         \]
 
         \item Supongo que $f(2) = 10$, sabemos que 
-        $X = b_1\ b_2\ 1\ b_3\ \dots b_9\ 1\ b_{11}\ \dots$. Defino
+        \[
+            X = b_1\ b_2\ 1\ b_3\ \dots b_9\ 1\ b_{11}\ \dots.
+        \]
+        Defino
 
         \[
             V_2 = \{ 
                 B_{b_1 \dots b_{10}}
                 \mid b_3 = b_{10} = 1 \text{ y los demás } b_j \in \{0, 1\}
-            \},
+            \}.
         \]
 
         Su medida también es correcta,
@@ -615,11 +640,11 @@ $\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
             \measure{V_2}
                 = 2^{10 - 2} \times \measure{B_{s \text{ con } |s| = 10}}
                 = 2^{10 - 2} \times 2^{-10} = 2^{-2}
-                \leq 2^{-2}
+                \leq 2^{-2}.
         \]
     \end{itemize}
 
-    En general, si $f(i) = x$
+    En general, si $f(i) = x$, defino $V_i$ de la siguiente manera:
 
     \[
         V_i = \{ 
@@ -675,13 +700,13 @@ $\Omega$ imprime $\Omega$ segmento inicial por segmento inicial.
     realiza los siguientes pasos,
 
     \begin{enumerate}
-        \item[0.] Computamos $\first{j}{\Omega_0}$ con
-        $\first{j}{\Omega_0}^*$
-        \item Computamos $\first{i}{\Omega}$ en base a
+        \item[0.] Computa $\first{j}{\Omega_0}$ con
+        $\first{j}{\Omega_0}^*$.
+        \item Computa $\first{i}{\Omega}$ en base a
         $\first{j}{\Omega_0}$ (Lema \ref{lemma:12.3}).
         \item $m = 1$. Mientras ($\alpha_m \leq \first{i}{\Omega}$), $m = m + 1$.
         \item Sea $O = \{ U(g(j)) \mid 1 \leq j \leq m \}$ los outputs de los
-        programas que se detienen que aportan a la aproximación de $\Omega$
+        programas que se detienen que aportan a la aproximación de $\Omega$.
         \item Sea $s$ la cadena más chica lexicográficamente tal que $s \notin O$.
         \item Return $s$.
     \end{enumerate}
@@ -731,10 +756,12 @@ c$, llegamos a
         K(\first{j}{\Omega_0}) > j - c',
     \]
     
-    que es la definición de aleatoriedad de Chaitin.
+    que es la definición de aleatoriedad de Chaitin. Por lo tanto, $\Omega_0$
+    es aleatorio.
 
 \end{proof}
 
+\newpage
 \subsection*{12.4}
 
 \textit{Demostrar que $\alpha = \sum_{\text{palabra s}} 2^{-K(s)}$ es
@@ -754,7 +781,7 @@ computablemente aproximable desde abajo y aleatorio.}
     \]
 
     Si un programa $p$ está en $S(t)$ y no está en $S(t + 1)$, es porque hay
-    otro programa $p'$ tal que $|p| < |p'|$ (que tarda más pasos en terminar,
+    otro programa $p'$ tal que $|p'| < |p|$ (que tarda más pasos en terminar,
     pero es más corto). Con esto puedo definir
 
     \[
@@ -781,11 +808,11 @@ computablemente aproximable desde abajo y aleatorio.}
 
     \begin{enumerate}
         \item Computa $\first{i}{\alpha}$ en base a
-        $\first{i}{\alpha}^*$
+        $\first{i}{\alpha}^*$.
         \item $t = 1$. Mientras ($\alpha_t \leq \first{i}{\alpha}$), $t = t + 1$.
         \item Sea $O = \{ U(s) \mid s \in S(t) \}$ los outputs de los
         programas candidatos a elegantes que aportan a la aproximación de
-        $\alpha$
+        $\alpha$.
         \item Sea $s$ la cadena más chica lexicográficamente tal que $s \notin O$.
         \item Return $s$.
     \end{enumerate}
@@ -802,7 +829,7 @@ computablemente aproximable desde abajo y aleatorio.}
             &&\text{(porque $\alpha_t > \first{i}{\alpha}$)}\\
         &\geq 2^{-i} + \first{i}{\alpha}
             &&\text{(sup. $|s^*| \leq i$)}\\
-        &\geq \alpha
+        &\geq \alpha.
             &&\text{($\first{i}{\alpha}$ contiene exactamente los primeros $i$ bits de $\alpha$)}
     \end{align*}
 
@@ -860,7 +887,7 @@ computablemente aproximable desde abajo y aleatorio.}
                     \text{Martin-Löf}\\
                     \text{aleatorio}
                 \end{gathered}
-            \right)
+            \right).
         \end{equation*}
         
     \end{lemma}
