@@ -1,0 +1,903 @@
+\documentclass{article}
+
+% https://es.overleaf.com/learn/latex/Page_size_and_margins
+\usepackage[a4paper]{geometry}
+
+% Matemática
+\usepackage{amsmath}    % símbolos matemáticos
+\usepackage{amsthm}     % teoremas
+\usepackage{amsfonts}   % \mathbb
+\usepackage{amssymb}    % \therefore
+\usepackage{bm}         % bold math (https://ctan.org/pkg/bm)
+\usepackage{abraces}    % \aoverbrace http://ctan.org/pkg/abraces
+% https://tex.stackexchange.com/questions/132526/overbrace-and-underbrace-with-square-bracket
+
+\usepackage[makeroom]{cancel}   % \cancel
+
+% Figuras
+\usepackage{tikz}                   % gráficos
+\usepackage{float}                  % [H]
+\usepackage{xcolor}                 % colores https://es.overleaf.com/learn/latex/Using_colours_in_LaTeX
+
+% Formateo
+\usepackage{framed}     % env leftbar
+
+% Texto
+\usepackage[shortlabels]{enumitem}  % enumerate con letras
+
+% Referencias
+\usepackage[colorlinks=true]{hyperref}
+
+% Código
+% https://tex.stackexchange.com/questions/51295/algpseudocode-without-end-block-text
+\usepackage[noend]{algpseudocode} % env algorithmic,
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+
+
+% Diagramas
+\usepackage{tikz}
+\usetikzlibrary{automata, arrows, positioning}
+
+\tikzset{
+    ->, % makes the edges directed
+    >=stealth', % makes the arrow heads bold
+    node distance=3cm, % specifies the minimum distance between two nodes. Change if necessary.
+    every state/.style={thick}, % sets the properties for each 'state' node
+    initial text=$ $, % sets the text that appears on the start arrow
+}
+
+
+\usepackage{mathtools}
+% Macros para símbolos
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\newcommand{\BigO}{\mathcal{O}}
+
+% Teoremas, corolarios, etc.
+% https://www.overleaf.com/learn/latex/theorems_and_proofs
+\theoremstyle{definition} % Para que no salga en italicas
+
+\newtheorem{theorem}{Teorema}
+\newtheorem*{theorem*}{Teorema}
+
+\newtheorem{lemma}{Lema}
+\newtheorem*{lemma*}{Lema}
+
+\newtheorem{proposition}{Prop.}
+\newtheorem*{proposition*}{Prop}
+
+\newtheorem{corollary}{Corolario}
+\newtheorem*{corollary*}{Corolario}
+
+\newtheorem{definition}{Def.}
+\newtheorem*{definition*}{Def}
+
+\newtheorem*{observation*}{Obs}
+
+\newtheorem{example}{Ejemplo}
+\newtheorem*{example*}{Ejemplo}
+
+% Comandos de AAA
+\newcommand{\select}{\upharpoonright}
+\newcommand{\progends}{\downarrow}
+\newcommand{\firstn}[1]{\first{n}{#1}}
+\newcommand{\first}[2]{#2[1 \dots #1]}
+\newcommand{\measure}[1]{\mu\left(#1\right)}
+\newcommand{\size}[1]{\left|#1\right|}
+\newcommand{\sucML}{(V_i)_{i > 0}}
+\newcommand{\ZOalphabet}{\{0, 1\}^*}
+\newcommand{\ML}{Martin-Löf }
+\newcommand{\occurrencesOf}[2]{|#2|_#1}
+\newcommand{\Bad}[4]{\text{Bad}(#1, #2, #3, #4)}
+
+
+% Entornos
+\newenvironment{nota}[1]
+    {\begin{leftbar}\textbf{#1}}
+    {\end{leftbar}}
+
+\author{Manuel Panichelli}
+\title{Algoritmos, Azar y Autómatas\\Resolución Ejercicios 9 a 13 (Aleatoriedad)}
+
+\begin{document}
+\maketitle
+
+\section*{Resultados previos}
+
+\begin{definition}[Programa elegante]\label{def:prog-elegante}
+    Un programa es elegante si es el más corto que computa una secuencia. Es
+    decir, $p \in \ZOalphabet$ es un programa elegante si existe $s \in
+    \ZOalphabet$, $U(p) = s$ y para todo otro programa $p \in \ZOalphabet$, si
+    $U(p') = s$ entonces $|p| \leq |p'|$.
+
+    Llamamos $s^*$ al programa elegante que computa $s$, $U(s^*) = s$ y $K(s) = |s^*|$.
+\end{definition}
+
+\begin{definition}[Abiertos básicos]
+    $B_s$ es el conjunto de palabras infinitas que comienzan por $s$.
+
+    \[B_s = \{ s \alpha \mid \alpha \in \{0, 1\}^* \}.\]
+
+\begin{proposition}[Medida de un abierto]
+    $\measure{B_s} = 2^{-|s|}.$
+\end{proposition}
+\end{definition}
+
+\begin{definition}[Test de Martin-Löf]\label{def:martin-lof}
+    Una sucesión $\sucML$ es un test de Martin-Löf si
+
+    \begin{itemize}
+        \item $V_i = \bigcup_{s \in S_i} B_s$ con $S_1 \subseteq {0, 1}^*$
+        computable
+        \item $\measure{V_i} \leq 2^{-i}$ \textit{(se va achicando)}
+    \end{itemize}
+
+    Si existe un test tal que $x \in \bigcap_{i \geq 1} V_i$, entonces $x$ no es
+    aleatorio.
+\end{definition}
+
+\newpage
+
+\section*{Ejercicio 9}
+
+\textit{Demostrar que los números \ML aleatorios son normales.}
+
+Voy a demostrarlo por el contrarecíproco:
+
+\[
+    x \text{ no es normal } \Rightarrow x \text{ no es \ML aleatorio. }
+\]
+
+Primero listo algunas definiciones y propiedades que voy a necesitar solo para
+este ejercicio,
+
+\begin{definition}[Simple normalidad en una base]\label{def:simple-norm}
+    $x \in A^*$ es simplemente normal en base $b$ si para todo $w \in A^\ell$
+
+    \[
+        \lim_{n\to\infty}
+            \frac{\occurrencesOf{w}{\first{n}{x}}}{n}
+            = \frac{1}{b^\ell}.
+    \]
+\end{definition}
+
+\begin{definition}[Malas palabras]\label{def:bad}
+    El conjunto de malas palabras para un alfabeto $A$ es
+
+    \[
+        \Bad{A}{k}{w}{\varepsilon} = \left\{
+            v \in A^k : \left|
+                \occurrencesOf{w}{v} - \frac{k}{b^{|w|}}
+            \right| > \varepsilon k
+        \right\}.
+    \]
+\end{definition}
+
+\begin{proposition}[Cota de cardinalidad de Bad]\label{prop:bad}
+    Para $k$ suficientemente grande,
+    \[
+        \size{\Bad{A}{k}{w}{\varepsilon}} < \varepsilon b^k.
+    \]
+\end{proposition}
+
+\begin{proposition}[Suma geométrica infinita]\label{prop:geom-inf-sum}
+    Sea $-1 < r < 1$, $r \neq 0$,
+
+    \[
+        \sum_{k=0}^{\infty} ar^k
+        = \frac{a}{1 - r}.
+    \]
+\end{proposition}
+
+\begin{proof}[Dem]
+    Sea $x$ no normal. Para ver que no es \ML aleatorio tenemos que dar un
+    \nameref{def:martin-lof} $\sucML$ tal que $x \in \bigcap_{i \geq 1} V_i$.
+
+    Como no es normal, existe una base $b$ tal que $x$ no es normal en esa
+    base.
+
+    \begin{align*}
+        &\Rightarrow
+            \exists\ w \text{ palabra tal que }
+            \lim_{n\to\infty}
+                \frac{\occurrencesOf{w}{\first{n}{x}}}{n}
+            \neq b^{-|w|}
+        &&\text{(Def \ref{def:simple-norm})}\\
+        &\Rightarrow
+            \exists\ w, \delta, k_0 \text{ tal que }
+                \forall k > k_0,\
+                    |\occurrencesOf{w}{\first{k}{x}} - b^{-|w|}| > \delta\\
+        &\Rightarrow
+            \exists\ w, \delta, k_0 \text{ tal que }
+            \forall k > k_0,\
+                \first{k}{x} \in \Bad{A}{k}{w}{\delta},
+        &&\text{(Def \ref{def:bad})}
+    \end{align*}
+
+    y observo que con $\delta$ fijo, $\forall \varepsilon \leq \delta$
+
+    \[
+        \Bad{A}{k}{w}{\delta} \subseteq \Bad{A}{k}{w}{\varepsilon}
+    \]
+
+    ya que si con una cota mas laxa una palabra resulta mala, con una condición
+    más estricta también lo será.
+
+    Definimos el conjunto $S(i)$
+
+    \begin{align*}
+        S(i)
+            &= \bigcup_{k > f(i)} 
+                \bigcup_{u : |u| < g(i)}
+                    \Bad{A}{k}{u}{\varepsilon(k)}\\
+            &=
+                \begin{aligned}[t]
+                &\text{palabras de longitud} > f(i)
+                \text{ con mala frecuencia}\\
+                &\text{con respecto a palabras de longitud} < g(i),
+                \end{aligned}
+    \end{align*}
+
+    con $f, g$ crecientes y $\varepsilon$ decreciente. Definimos también el
+    conjunto $V_i$ a partir de él,
+
+    \[
+        V_i = \bigcup_{s \in S(i)} B_s
+    \]
+
+    que es casi el test pero podría suceder que $x$ no pertenezca. Para
+    solucionarlo, vamos a \textit{shiftearlo}. Como $x$ es mala, sabemos que
+    $\first{k}{x} \in \Bad{A}{k}{w}{\delta}$. Luego, como $f$ y $g$ son
+    crecientes, existe un $i_0$ a partir del cual
+    \begin{itemize}
+        \item $f(i_0) > k_0$ (estamos considerando palabras lo suficientemente
+        grandes), y
+        \item $g(i_0) > |w|$ (estamos considerando longitudes lo suficientemente
+        grandes).
+    \end{itemize}
+
+    y por lo tanto, $\forall i > i_0$, $x \in V_{i+i_0}$. Definimos entonces el test a partir de ese $i_0$,
+
+    \[
+        W_i = V_{i_0 + i}.
+    \]
+
+    Tiene que cumplir dos cosas,
+
+    \begin{enumerate}
+        \item $x \in \bigcap_{i > 0} W_i$ y
+        \item $\measure{W_i} = \measure{V_i} \leq 2^{-i}$.
+    \end{enumerate}
+
+    Como sabemos que 1. se cumple por construcción de $W_i$ y la elección de
+    $i_0$, nos queda elegir $f, g$ y $\varepsilon$ de forma tal que se cumpla 2.
+    Veamos la medida de cada conjunto,
+
+    \begin{align*}
+        \measure{W_i}
+            &= \measure{V_i}\\
+            &= \measure{\bigcup_{s\in S(i)} B_s}\\
+            &\leq \sum_{s \in S(i)} \measure{B_s}\\
+            &= \sum_{s \in S(i)} 2^{-|s|}\\
+            &< \sum_{s \in S(i)} 2^{-f(i)}\\
+            &=\size{S(i)} 2^{-f(i)} < 2^{-i} \iff \size{S(i)} < 2^{f(i) - i}.\\
+    \end{align*}
+
+    Para $k$ suficientemente grande, se que se cumple la Prop \ref{prop:bad}
+
+    \begin{align*}
+        \size{S(i)}
+            &= \size{
+                \bigcup_{k > f(i)} 
+                \bigcup_{u : |u| < g(i)}
+                \Bad{A}{k}{u}{\varepsilon(k)}
+            }\\
+            &\leq 
+                \sum_{k > f(i)} 
+                \sum_{u : |u| < g(i)}
+                \size{\Bad{A}{k}{u}{\varepsilon(k)}}\\
+            &<
+                \sum_{k > f(i)} 
+                \sum_{u : |u| < g(i)}
+                    \varepsilon(k) 2^k
+            &&(\text{Prop. \ref{prop:bad}})\\
+            &<
+                \sum_{k > f(i)} 
+                    g(i)
+                    \varepsilon(k) 2^k\\
+            &< \sum_{k > 0} 
+                    g(i)
+                    \varepsilon(k) 2^k\\
+            &= \sum_{k > 0} 
+                g(i)
+                (1/2)^k \cancel{2^{-k}} \cancel{2^k}
+            &&(\text{Tomando } \varepsilon(k) = (1/2)^k 2^{-k})\\
+            &= \frac
+                {g(i)}
+                {1 - 1/2}
+            = 2g(i)
+            &&\text{(Prop. \ref{prop:geom-inf-sum})}
+    \end{align*}
+
+    Juntando, quiero encontrar $g$ y $f$ tales que $2g(i) < 2^{f(i)- i}$.
+    Si tomo $f(i) = 2i$ y $g(i) = i/2$, tengo que
+
+    \begin{align*}
+        2g(i) < 2^{f(i)- i}
+            &\iff 2 i/2 < 2^{2i - i} \\
+            &\iff i < 2^{i},
+    \end{align*}
+
+    lo cual es cierto. Por lo tanto, las siguientes elecciones de funciones
+    hacen que el test $W_i$ cumpla con la restricción 2,
+    
+    \begin{itemize}
+        \item $f(n) = 2n$ que es creciente
+        \item $g(n) = n/2$ que es creciente
+        \item $\varepsilon(n) = (1/2)^n 2^{-n} = (1/4)^n$ que es decreciente.
+    \end{itemize}
+
+    Finalmente, como existe un test de \ML que contiene a $x$, no es aleatoria.
+    Por lo tanto, como acabo de demostrar que cuando $x$ no es normal tampoco es
+    aleatorio, concluyo que los números \ML aleatorios son normales.
+\end{proof}
+
+\newpage 
+
+\section*{Ejercicio 10}
+
+\textit{Dar un algoritmo que permite computar $\Omega$ con un oráculo para el problema de la detención.}
+
+Recuerdo la definición de $\Omega$, la suma de las potencias de 2 de las
+longitudes de todos los programas que terminan. Si U es una máquina de Turing
+universal,
+
+\[
+    \Omega = \sum_{U(p)\progends} 2 ^ {-|p|}
+\]
+
+para computar $\Omega$ voy a dar una función que computa los primeros $n$
+dígitos, $\firstn{\Omega}$, y luego voy incrementando $n$ e imprimiendo los
+resultados.
+
+Sea $g$ una enumeración de todos los programas que terminan (se
+podría obtener computablemente mediante un método como \textit{dovetailing}),
+defino una aproximación de $\Omega$ hasta el m-ésimo programa,
+
+\[
+    \alpha_m = \sum_{j = 1}^{m} 2 ^ {-|g(j)|}.
+\]
+
+Lo que me gustaría saber es para qué $m$ $\alpha_m$ tiene los primeros $n$
+dígitos \textit{definitivos}, es decir $\firstn{\Omega} = \firstn{\alpha_m}$.
+Para ello, debo verificar que
+
+\[
+    \firstn{\alpha_m} \overset{?}{=} \firstn{\alpha_m'}\ \forall m' > m.
+\]
+
+Es decir, no importa que sigamos considerando más programas, los primeros $n$
+dígitos no van a cambiar. Como no es algo finito, no lo podemos computar con un
+algoritmo, pero acá es donde nos salva el oráculo de Halt. La siguiente función
+logra lo buscado cuando se la pasamos al oráculo:
+
+\vspace{0.5cm}
+
+\begin{algorithmic}
+    \Function{Q}{m, n}
+        \State $m' \gets m + 1$
+        \While{true}
+            \If{$\firstn{\alpha_m} \neq \firstn{\alpha_m'}$}
+            \State \textbf{break}
+            \EndIf
+            \State $m' \gets m' + 1$
+        \EndWhile
+    \EndFunction
+\end{algorithmic}
+
+\begin{itemize}
+    \item Si \texttt{OraculoHalt(Q(m, n)) = true} (es decir, Q termina) es
+    porque existía $m$ tal que cambiaban los primeros $n$ dígitos, y por lo
+    tanto no eran definitivos.
+
+    \item Si \texttt{OraculoHalt(Q(m, n)) = false} (es decir, Q \textit{no}
+    termina), entonces no existe $m$ tal que cambien los primeros $n$ dígitos, y
+    por lo tanto son definitivos.
+\end{itemize}
+
+El algoritmo completo para computar $\Omega$ es el siguiente, donde la función
+sin argumentos Print $\Omega$ lo imprime de a segmentos iniciales.
+
+\vspace{0.5cm}
+
+\begin{algorithmic}
+    \Function{Print $\Omega$}{}
+
+        \For{$n = 1, 2 \dots$}
+            \State \textbf{print} \Call{$\Omega$}{n}
+        \EndFor
+
+    \EndFunction
+
+    \Function{$\Omega$}{n}
+
+    \For{$m = 1, 2 \dots$}
+        \If{$\neg$ OraculoHalt(\Call{Q}{m, n})}
+            \State \textbf{return} $\firstn{\alpha_m}$
+        \EndIf
+    \EndFor
+
+\EndFunction
+    \Function{Q}{m, n}
+        \State $m' \gets m + 1$
+        \While{true}
+            \If{$\firstn{\alpha_m} \neq \firstn{\alpha_m'}$}
+            \State \textbf{break}
+            \EndIf
+            \State $m' \gets m' + 1$
+        \EndWhile
+    \EndFunction
+\end{algorithmic}
+
+\section*{Ejercicio 11}
+
+\textit{Salteado porque no era necesario resolverlo.}
+
+\section*{Ejercicio 12}
+
+\subsection*{12.1}
+
+\textit{Demostrar que el número $(1 - \Omega)$ es aleatorio}
+
+\begin{lemma}\label{lemma:xor-bits}
+    Con los bits de $x$ puedo obtener los de $\bar{x} = 1 - x$ realizando un xor con
+    todos 1s, $x \oplus 1s = \bar{x}$.
+\end{lemma}
+
+\begin{proof}[Dem]
+    Sea $g: \mathbb{N} \to \Sigma^*$ una enumeración de los programas que se
+    detienen, $\alpha_m = \sum_{j = 1}^{m} 2 ^ {-|g(j)|}$ una aproximación de
+    $\Omega$ de $m$ pasos. Defino el programa $p$,
+
+    \[
+        p = b_1 b_2 \dots b_c \first{i}{\bar{\Omega}}^*
+    \]
+
+    donde $\first{i}{\bar{\Omega}}^*$ es una subrutina que es el programa
+    elegante (el más corto) que computa $\first{i}{\bar{\Omega}}$ y $b_1 b_2
+    \dots b_c$ realiza los siguientes pasos,
+
+    \begin{enumerate}
+        \item[0.] Computamos $\first{i}{\bar{\Omega}}$ con
+        $\first{i}{\bar{\Omega}}^*$.
+        \item Computamos $\first{i}{\Omega}$ en base a
+        $\first{i}{\bar{\Omega}}$ mediante un $\oplus$ con todos 1s.
+        \item $m = 1$. Mientras ($\alpha_m \leq \first{i}{\Omega}$), $m = m + 1$.
+        \item Sea $O = \{ U(g(j)) \mid 1 \leq j \leq m \}$ los outputs de los
+        programas que se detienen que aportan a la aproximación de $\Omega$.
+        \item Sea $s$ la cadena más chica lexicográficamente tal que $s \notin O$.
+        \item Return $s$.
+    \end{enumerate}
+
+    Veamos que $|s^*| > i$, la longitud del programa elegante que computa $s$
+    (su complejidad) es más chica que $i$. Para demostrarlo supongamos lo
+    contrario, que $|s^*| \leq i$
+
+    \begin{align*}
+        \Omega 
+        &> 2^{-|s^*|} + \alpha_m
+            &&\text{($\Omega$ tiene infinitos aportes)}\\
+        &> 2^{-|s^*|} + \first{i}{\Omega}
+            &&\text{(porque $\alpha_m > \first{i}{\Omega}$)}\\
+        &\geq 2^{-i} + \first{i}{\Omega}
+            &&\text{(sup. $|s^*| \leq i$)}\\
+        &\geq \Omega.
+            &&\text{($\first{i}{\Omega}$ contiene exactamente los primeros $i$ bits de $\Omega$)}
+    \end{align*}
+
+    Y llegamos a $\Omega > \Omega$ que es un absurdo. Por lo tanto, $|s^*| > i$.
+    
+    Por otro lado, como $p$ es un programa (no muy bueno) que computa $s$, se que
+
+    \begin{equation}\label{eq:12-comp}
+         K(s) \leq c + |\first{i}{\bar{\Omega}}^*|
+    \end{equation}
+
+    donde $c = |b_1 \dots b_c|$.
+
+    Juntando,
+
+    \begin{align*}
+        i
+            &< |s^*|\\
+            &= K(s)\\
+            &\leq c + |\first{i}{\bar{\Omega}}^*|
+            &&\text{por (\ref{eq:12-comp})}\\
+            &= c + K(\first{i}{\bar{\Omega}})
+    \end{align*}
+
+    $\iff K(\first{i}{\bar{\Omega}}) > i - c$, que es la definición de
+    aleatoriedad de Chaitin. Concluyo que $\bar{\Omega}$ es aleatorio.
+
+\end{proof}
+
+\subsection*{12.2}
+
+\textit{Para todo conjunto $X$ infinito y c.e pero no computable, $\alpha =
+\sum_{x \in X} 2^{-x}$ no es aleatorio.}
+
+\begin{definition}[c.e]
+    $X$ es c.e (computablemente enumerable) si $\exists f: \mathbb{N} \to
+    \mathbb{N}$ tal que $Im(f) = X$. Es decir, $f$ enumera los elementos de $X$
+    en algún orden que no se puede elegir.
+    \begin{example}
+        $X = \{2, 5\}$. Puedo tomar $f(1) = 5, f(2) = 2$ o $f'(1) = 2, f'(2) = 5$.
+    \end{example}
+    \begin{example}
+        $X = \{ n \mid n \text{ es impar} \} = \{1, 3, 5, 7, \dots \}$
+
+        Puedo enumerarlos en cualquier orden,
+        
+        $$f(1) = 7, f(2) = 17, f(3) = 37\dots,$$
+        
+        y la función característica es
+
+        $$X = 101010 \dots$$
+    \end{example}
+\end{definition}
+\begin{definition}[Función característica]
+    Puedo codificar un conjunto con una sucesión de bits correspondientes a su
+    función característica.
+
+    \[
+        X = b_1 b_2 b_3 b_4 b_5 \dots
+    \]
+
+    con
+
+    \[
+        b_i =
+            \begin{cases}
+                1 & \text{si } i \in X \\
+                0 & \text{sino.}
+            \end{cases}
+    \]
+
+    Por ejemplo
+    \[
+        X = \{1, 4, 10\}
+        =
+        \underset{1}{1}\
+        \underset{2}{0}\
+        \underset{3}{0}\
+        \underset{4}{1}\
+        \underset{5}{0}\
+        \underset{6}{0}\
+        \underset{7}{0}\
+        \underset{8}{0}\
+        \underset{9}{0}\
+        \underset{10}{1}
+    \]
+\end{definition}
+\begin{observation*}
+    La expansión en base 2 de $\alpha$ es la codificación en bits de $X$. Por ejemplo, con $X = \{1, 4,
+    10\}$,
+
+    $$\alpha = 2^{-1} + 2^{-4} + 2^{-10} = 0.5634765625 = (0.1001000001)_2.$$
+\end{observation*}
+
+\begin{proof}[Dem]
+    Para ver que $\alpha$ no es aleatorio voy a dar un test de Martin-Löf
+    $(V_i)_{i > 0}$ tal que $\alpha \in \bigcap_{i > 0} V_i$. Veamos con
+    ejemplos como serían los primeros dos conjuntos:
+
+    \begin{itemize}
+        \item Supongo que $f(1) = 3$. Luego sabemos que $3 \in X$, y por lo
+        tanto aparecerá en la tercera posición en su codificación en bits,
+        
+        \[
+            X = b_1\ b_2\ 1\ b_3\ b_4\ b_5 \dots.
+        \]
+        
+        Defino $V_1$ tal que los primeros 3 dígitos de la expansión de
+        $\alpha$ aparezcan.
+
+        \[
+            V_1 = \{ 
+                B_{b_1 b_2 1}
+                \mid b_1, b_2 \in \{0, 1\}
+            \},
+        \]
+
+        con $B_s$ las palabras infinitas que comienzan por $s$. Y su medida es
+        correcta,
+
+        \[
+            \measure{V_1}
+                = 2^2 \times \measure{B_{111}}
+                = 2^2 \times 2^{-3} = 1/2
+                \leq 2^{-1}
+        \]
+
+        \item Supongo que $f(2) = 10$, sabemos que 
+        \[
+            X = b_1\ b_2\ 1\ b_3\ \dots b_9\ 1\ b_{11}\ \dots.
+        \]
+        Defino
+
+        \[
+            V_2 = \{ 
+                B_{b_1 \dots b_{10}}
+                \mid b_3 = b_{10} = 1 \text{ y los demás } b_j \in \{0, 1\}
+            \}.
+        \]
+
+        Su medida también es correcta,
+
+        \[
+            \measure{V_2}
+                = 2^{10 - 2} \times \measure{B_{s \text{ con } |s| = 10}}
+                = 2^{10 - 2} \times 2^{-10} = 2^{-2}
+                \leq 2^{-2}.
+        \]
+    \end{itemize}
+
+    En general, si $f(i) = x$, defino $V_i$ de la siguiente manera:
+
+    \[
+        V_i = \{ 
+            B_{b_1 \dots b_{x}}
+            \mid b_{f(k)} = 1 \text{ con } k \leq i \text{ y el resto } b_j \in \{0, 1\}
+        \},
+    \]
+
+    luego
+
+    \begin{align*}
+        \measure{V_i}
+            &= 2^{x - i} \times \measure{B_{s \text{ con } |s| = x}} \\
+            &= 2^{x - i} \times 2^{-x} \\
+            &= 2^{\cancel{x} - i - \cancel{x}} \\
+            &= 2^{-i} \leq 2^{-i}
+    \end{align*}
+
+    y se que $\alpha \in \bigcap_{i \geq 1} V_i$ pues cada $V_i$ va refinando
+    segmentos iniciales más grandes de $\alpha$. Por lo tanto, como existe un
+    test de Martin-Löf que contiene a $\alpha$, $\alpha$ no es aleatorio.
+\end{proof}
+
+\subsection*{12.3}
+
+\textit{El número $\Omega_0$ que resulta de anteponer mil 0s delante de $\Omega$ es aleatorio.}
+
+\begin{lemma}\label{lemma:12.3}
+    Como $\Omega_0 = 0^{1000} \Omega$, entonces 
+    
+    \begin{align*}
+        \first{j}{\Omega_0}
+        &= \first{j}{(0^{1000} \Omega)} \\
+        &= 0^{1000} \first{j - 1000}{\Omega} \\
+        &= 0^{1000} \first{i}{\Omega} && (i = j - 1000)
+    \end{align*}
+
+    A partir de $\first{j}{\Omega_0}$ puedo calcular $\first{i}{\Omega}$
+    trivialmente.
+\end{lemma}
+
+\begin{proof}[Dem]
+    Sea $g: \mathbb{N} \to \Sigma^*$ una enumeración de los programas que se
+    detienen, $\alpha_m = \sum_{j = 1}^{m} 2 ^ {-|g(j)|}$ una aproximación de
+    $\Omega$ de $m$ pasos. Defino el programa $p$,
+
+    \[
+        p = b_1 b_2 \dots b_c \first{j}{\Omega_0}^*
+    \]
+
+    donde $\first{j}{\Omega_0}^*$ es una subrutina que es el programa elegante
+    (el más corto) que computa $\first{j}{\Omega_0}$ y $b_1 b_2 \dots b_c$
+    realiza los siguientes pasos,
+
+    \begin{enumerate}
+        \item[0.] Computa $\first{j}{\Omega_0}$ con
+        $\first{j}{\Omega_0}^*$.
+        \item Computa $\first{i}{\Omega}$ en base a
+        $\first{j}{\Omega_0}$ (Lema \ref{lemma:12.3}).
+        \item $m = 1$. Mientras ($\alpha_m \leq \first{i}{\Omega}$), $m = m + 1$.
+        \item Sea $O = \{ U(g(j)) \mid 1 \leq j \leq m \}$ los outputs de los
+        programas que se detienen que aportan a la aproximación de $\Omega$.
+        \item Sea $s$ la cadena más chica lexicográficamente tal que $s \notin O$.
+        \item Return $s$.
+    \end{enumerate}
+
+    Veamos que $|s^*| > i$, la longitud del programa elegante que computa $s$
+    (su complejidad) es más chica que $i$. Para demostrarlo supongamos lo
+    contrario, que $|s^*| \leq i$
+
+    \begin{align*}
+        \Omega 
+        &> 2^{-|s^*|} + \alpha_m
+            &&\text{($\Omega$ tiene infinitos aportes)}\\
+        &> 2^{-|s^*|} + \first{i}{\Omega}
+            &&\text{(porque $\alpha_m > \first{i}{\Omega}$)}\\
+        &\geq 2^{-i} + \first{i}{\Omega}
+            &&\text{(sup. $|s^*| \leq i$)}\\
+        &\geq \Omega
+            &&\text{($\first{i}{\Omega}$ contiene exactamente los primeros $i$ bits de $\Omega$)}
+    \end{align*}
+
+    Y llegamos a $\Omega > \Omega$ que es un absurdo. Por lo tanto, $|s^*| > i$.
+    
+    Por otro lado, como $p$ es un programa (no muy bueno) que computa $s$, se que
+
+    \begin{equation}\label{eq:comp-2}
+         K(s) \leq c + |\first{j}{\Omega_0}^*|
+    \end{equation}
+
+    donde $c = |b_1 \dots b_c|$.
+
+    Juntando,
+
+    \begin{align*}
+        i
+            &< |s^*|\\
+            &= K(s)\\
+            &\leq c + |\first{j}{\Omega_0}^*|
+                &&\text{por (\ref{eq:comp-2})} \\
+            &= c + K(\first{j}{\Omega_0}) \\
+            &\iff K(\first{j}{\Omega_0}) > i - c = j - 1000 - c
+    \end{align*}
+
+     y tomando $c' = 1000 -
+c$, llegamos a
+
+    \[
+        K(\first{j}{\Omega_0}) > j - c',
+    \]
+    
+    que es la definición de aleatoriedad de Chaitin. Por lo tanto, $\Omega_0$
+    es aleatorio.
+
+\end{proof}
+
+\newpage
+\subsection*{12.4}
+
+\textit{Demostrar que $\alpha = \sum_{\text{palabra s}} 2^{-K(s)}$ es
+computablemente aproximable desde abajo y aleatorio.}
+
+\begin{proposition*}[$\alpha$ es aproximable desde abajo]
+    Primero, observo que $\alpha$ es la probabilidad de que un programa sea
+    elegante. Defino el conjunto
+
+    \[
+        S(t) = \left\{
+            \begin{gathered}
+            \text{programas que terminan en menos de } t \\
+            \text{ pasos y son candidatos a ser elegantes}
+            \end{gathered}
+        \right\}.
+    \]
+
+    Si un programa $p$ está en $S(t)$ y no está en $S(t + 1)$, es porque hay
+    otro programa $p'$ tal que $|p'| < |p|$ (que tarda más pasos en terminar,
+    pero es más corto). Con esto puedo definir
+
+    \[
+        \alpha_t = \sum_{s \in S(t)} 2^{-|s|}.
+    \]
+
+    Como en cada paso $t$ los programas se hacen más cortos, $\alpha_t <
+    \alpha_{t+1} < \alpha$ (pues son potencias negativas). Por lo tanto, alpha
+    se puede aproximar computacionalmente de forma \textit{estrictamente}
+    creciente desde abajo.
+\end{proposition*}
+
+\begin{proof}[Dem](12.4)
+    Sea $\alpha_t$ una aproximación por abajo estrictamente creciente de $t$
+    pasos de $\alpha$. Defino el programa $p$,
+
+    \[
+        p = b_1 b_2 \dots b_c \first{i}{\alpha}^*,
+    \]
+
+    donde $\first{i}{\alpha}^*$ es una subrutina que contiene el programa
+    elegante (el más corto) que computa $\first{i}{\alpha}$ y $b_1 b_2
+    \dots b_c$ realiza los siguientes pasos,
+
+    \begin{enumerate}
+        \item Computa $\first{i}{\alpha}$ en base a
+        $\first{i}{\alpha}^*$.
+        \item $t = 1$. Mientras ($\alpha_t \leq \first{i}{\alpha}$), $t = t + 1$.
+        \item Sea $O = \{ U(s) \mid s \in S(t) \}$ los outputs de los
+        programas candidatos a elegantes que aportan a la aproximación de
+        $\alpha$.
+        \item Sea $s$ la cadena más chica lexicográficamente tal que $s \notin O$.
+        \item Return $s$.
+    \end{enumerate}
+
+    Veamos que $|s^*| > i$, la longitud del programa elegante que computa $s$
+    (su complejidad) es más chica que $i$. Para demostrarlo supongamos lo
+    contrario, que $|s^*| \leq i$
+
+    \begin{align*}
+        \alpha 
+        &> 2^{-|s^*|} + \alpha_t
+            &&\text{($\alpha$ tiene infinitos aportes)}\\
+        &> 2^{-|s^*|} + \first{i}{\alpha}
+            &&\text{(porque $\alpha_t > \first{i}{\alpha}$)}\\
+        &\geq 2^{-i} + \first{i}{\alpha}
+            &&\text{(sup. $|s^*| \leq i$)}\\
+        &\geq \alpha.
+            &&\text{($\first{i}{\alpha}$ contiene exactamente los primeros $i$ bits de $\alpha$)}
+    \end{align*}
+
+    Y llegamos a $\alpha > \alpha$ que es un absurdo. Por lo tanto, $|s^*| > i$.
+    
+    Por otro lado, como $p$ es un programa (no muy bueno) que computa $s$, se que
+
+    \begin{equation}\label{eq:comp}
+         K(s) \leq c + |\first{i}{\alpha}^*|
+    \end{equation}
+
+    donde $c = |b_1 \dots b_c|$.
+
+    Juntando,
+
+    \begin{align*}
+        i
+            &< |s^*|\\
+            &= K(s)\\
+            &\leq c + |\first{i}{\alpha}^*| &&\text{por (\ref{eq:comp})}\\
+            &= c + K(\first{i}{\alpha})
+    \end{align*}
+
+    $\iff K(\first{i}{\alpha}) > i - c$, que es la definición de
+    aleatoriedad de Chaitin.
+    
+    $\therefore \alpha$ es aleatorio.
+\end{proof}
+
+\section*{Ejercicio 13}
+
+\textit{Dar un test de Martin Löf que contenga a los números decimales cuya expansión decimal no contiene el 7.}
+
+\begin{proof}[Dem]
+
+    \begin{lemma}[Contrarecíproco del ej. 9]\label{lemma:9-contrarrep}
+        
+        \begin{equation*}
+            \aunderbrace[l1r]{
+                \left(
+                    \begin{gathered}
+                        \text{$x$ es Martin-Löf} \\
+                        \text{aleatorio}
+                    \end{gathered}
+                    \Rightarrow
+                    x \text{ es normal.}
+                \right)
+            }_{\text{Ejercicio 9}}
+            \implies
+            \left(
+                x \text{ no es normal.}
+                \Rightarrow
+                \begin{gathered}
+                    \text{$x$ no es} \\
+                    \text{Martin-Löf}\\
+                    \text{aleatorio}
+                \end{gathered}
+            \right).
+        \end{equation*}
+        
+    \end{lemma}
+
+    Sea $x$ un número cuya expansión decimal no contiene el 7. Como la
+    frecuencia de todos los dígitos no es la misma, no es normal. Por lo tanto,
+    por el Lema \ref{lemma:9-contrarrep} tampoco es Martin-Löf aleatorio y por
+    definición existirá un test en el que esté contenido.
+\end{proof}
+
+\textit{Perdón Vero por resolverlo de esta manera, pero ya me estaba extendiendo mucho con el plazo de entrega!}
+
+\end{document}
